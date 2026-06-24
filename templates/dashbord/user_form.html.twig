@@ -1,0 +1,181 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}{{ title }} - ERP{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block icon %}person-plus{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-form-check me-2"></i>{{ title }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+
+                    <div class="col-md-6">
+                        {{ form_label(form.nom, 'Nom', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom'}}) }}
+                        {% if form.nom.vars.errors|length > 0 %}
+                            <small class="text-danger d-block mt-2">
+                                {% for error in form.nom.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_label(form.prenom, 'Prénom', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.prenom, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le prénom'}}) }}
+                        {% if form.prenom.vars.errors|length > 0 %}
+                            <small class="text-danger d-block mt-2">
+                                {% for error in form.prenom.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_label(form.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'exemple@email.com', 'type': 'email'}}) }}
+                        {% if form.email.vars.errors|length > 0 %}
+                            <small class="text-danger d-block mt-2">
+                                {% for error in form.email.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_label(form.telephone, 'Téléphone', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.telephone, {'attr': {'class': 'form-control', 'placeholder': '+216 XX XXX XXX'}}) }}
+                        {% if form.telephone.vars.errors|length > 0 %}
+                            <small class="text-danger d-block mt-2">
+                                {% for error in form.telephone.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_label(form.password, 'Mot de passe', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.password, {'attr': {'class': 'form-control', 'placeholder': 'Entrez un mot de passe', 'type': 'password'}}) }}
+                        {% if user.id %}
+                            <small class="text-muted d-block mt-1">
+                                <i class="bi bi-info-circle me-1"></i>Laissez vide pour conserver le mot de passe actuel
+                            </small>
+                        {% endif %}
+                        {% if form.password.vars.errors|length > 0 %}
+                            <small class="text-danger d-block mt-2">
+                                {% for error in form.password.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_label(form.role, 'Rôle', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.role, {'attr': {'class': 'form-select'}}) }}
+                        {% if form.role.vars.errors|length > 0 %}
+                            <small class="text-danger d-block mt-2">
+                                {% for error in form.role.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="col-12" style="display: flex; gap: 0.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {% if user.id %}
+                                Modifier
+                            {% else %}
+                                Créer
+                            {% endif %}
+                        </button>
+                        <a href="{{ path('dashbord_users') }}" class="btn btn-secondary" style="padding: 0.75rem 2rem;">
+                            <i class="bi bi-x-circle me-2"></i>Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>Conseils
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if user.id %}
+                    <div style="background: #dbeafe; border-left: 4px solid #0284c7; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; color: #0c4a6e; font-size: 0.85rem;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>Mode édition:</strong> Les champs ne sont pas obligatoires. Laissez vides pour ne pas modifier.
+                    </div>
+                    {% endif %}
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+                            <strong>📋 Nom et Prénom</strong>
+                            <p class="text-muted small mt-1 mb-0">
+                                {% if user.id %}
+                                    Optionnel en édition. Laissez vide pour ne pas modifier.
+                                {% else %}
+                                    Entrez le nom et le prénom complet de l'utilisateur
+                                {% endif %}
+                            </p>
+                        </li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+                            <strong>📧 Email</strong>
+                            <p class="text-muted small mt-1 mb-0">
+                                {% if user.id %}
+                                    Optionnel en édition. L'email doit être unique si modifié.
+                                {% else %}
+                                    L'email doit être unique dans le système
+                                {% endif %}
+                            </p>
+                        </li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+                            <strong>🔐 Mot de passe</strong>
+                            <p class="text-muted small mt-1 mb-0">
+                                {% if user.id %}
+                                    Optionnel en édition. Laissez vide pour conserver le mot de passe actuel.
+                                {% else %}
+                                    Utilisez un mot de passe fort avec au moins 8 caractères
+                                {% endif %}
+                            </p>
+                        </li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border);">
+                            <strong>📱 Téléphone</strong>
+                            <p class="text-muted small mt-1 mb-0">Champ optionnel - vous pouvez le laisser vide</p>
+                        </li>
+                        <li style="padding: 0.75rem 0;">
+                            <strong>👤 Rôle</strong>
+                            <p class="text-muted small mt-1 mb-0">
+                                <span class="badge" style="background: #dbeafe; color: #1e40af;">ROLE_ADMIN</span> pour les administrateurs
+                                <br>
+                                <span class="badge" style="background: #dcfce7; color: #15803d;">ROLE_USER</span> pour les utilisateurs
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

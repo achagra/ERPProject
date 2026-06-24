@@ -1,0 +1,117 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}Gestion des Employés - ERP{% endblock %}
+{% block page_title %}Gestion des Employés{% endblock %}
+{% block icon %}person-badge{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <p class="text-muted mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Total: <strong>{{ employes|length }}</strong> employés
+                </p>
+                <a href="{{ path('dashbord_employe_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Ajouter un employé
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>Liste des employés</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if employes is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nom & Prénom</th>
+                                        <th>Département</th>
+                                        <th>Email</th>
+                                        <th>Téléphone</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for employe in employes %}
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
+                                                    {{ employe.prenom|slice(0, 1)|upper }}{{ employe.nom|slice(0, 1)|upper }}
+                                                </div>
+                                                <strong>{{ employe.nom }} {{ employe.prenom }}</strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge" style="background: #dbeafe; color: #1e40af;">
+                                                {{ employe.departement }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-envelope me-2" style="color: var(--primary);"></i>
+                                            <a href="mailto:{{ employe.email }}" style="text-decoration: none; color: var(--primary);">
+                                                {{ employe.email }}
+                                            </a>
+                                        </td>
+                                        <td>{{ employe.telephone ?: '-' }}</td>
+                                        <td>
+                                            <div style="display: flex; gap: 0.5rem;">
+                                                <a href="{{ path('dashbord_employe_edit', {id: employe.id}) }}" class="btn btn-sm" style="background: #fef3c7; color: #92400e; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" title="Modifier">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" data-bs-toggle="modal" data-bs-target="#deleteModal{{ employe.id }}" title="Supprimer">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="modal fade" id="deleteModal{{ employe.id }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression</h5>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Êtes-vous sûr de vouloir supprimer <strong>{{ employe.nom }} {{ employe.prenom }}</strong>?</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <form method="POST" action="{{ path('dashbord_employe_delete', {id: employe.id}) }}" style="display: inline;">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete_employe' ~ employe.id) }}">
+                                                                <button type="submit" class="btn btn-danger">
+                                                                    <i class="bi bi-trash me-2"></i>Supprimer
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <h5>Aucun employé trouvé</h5>
+                            <p class="text-muted">Commencez par ajouter votre premier employé</p>
+                            <a href="{{ path('dashbord_employe_new') }}" class="btn btn-primary mt-3">
+                                <i class="bi bi-plus-circle me-2"></i>Ajouter un employé
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

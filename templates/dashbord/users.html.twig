@@ -1,0 +1,155 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}Gestion des Utilisateurs - ERP{% endblock %}
+{% block page_title %}Gestion des Utilisateurs{% endblock %}
+{% block icon %}people{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <div>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Total: <strong>{{ users|length }}</strong> utilisateurs
+                    </p>
+                </div>
+                <a href="{{ path('dashbord_user_new') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Ajouter un utilisateur
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table me-2"></i>Liste des utilisateurs
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if users is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 5%;">#</th>
+                                        <th style="width: 25%;">Nom & Prénom</th>
+                                        <th style="width: 25%;">Email</th>
+                                        <th style="width: 15%;">Téléphone</th>
+                                        <th style="width: 15%;">Rôle</th>
+                                        <th style="width: 15%;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>
+                                            <strong>#{{ user.id }}</strong>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
+                                                    {{ user.prenom|slice(0, 1)|upper }}{{ user.nom|slice(0, 1)|upper }}
+                                                </div>
+                                                <div>
+                                                    <div style="font-weight: 600;">{{ user.nom }} {{ user.prenom }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-envelope me-2" style="color: var(--primary);"></i>
+                                            <a href="mailto:{{ user.email }}" style="text-decoration: none; color: var(--primary);">
+                                                {{ user.email }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if user.telephone %}
+                                                <i class="bi bi-telephone me-2" style="color: var(--success);"></i>
+                                                <a href="tel:{{ user.telephone }}" style="text-decoration: none; color: var(--success);">
+                                                    {{ user.telephone }}
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if user.role == 'ROLE_ADMIN' %}
+                                                <span class="badge" style="background: #dbeafe; color: #1e40af;">
+                                                    <i class="bi bi-shield-fill me-1"></i>Admin
+                                                </span>
+                                            {% elseif user.role == 'ROLE_USER' %}
+                                                <span class="badge" style="background: #dcfce7; color: #15803d;">
+                                                    <i class="bi bi-person-fill me-1"></i>Utilisateur
+                                                </span>
+                                            {% else %}
+                                                <span class="badge" style="background: #fef3c7; color: #92400e;">
+                                                    {{ user.role }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; gap: 0.5rem;">
+                                                <a href="{{ path('dashbord_user_show', {id: user.id}) }}" class="btn btn-sm" style="background: #dbeafe; color: #1e40af; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" title="Voir">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{{ path('dashbord_user_edit', {id: user.id}) }}" class="btn btn-sm" style="background: #fef3c7; color: #92400e; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" title="Modifier">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.id }}" title="Supprimer">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Delete Modal -->
+                                            <div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">
+                                                                <i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression
+                                                            </h5>
+                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Êtes-vous sûr de vouloir supprimer <strong>{{ user.nom }} {{ user.prenom }}</strong>?</p>
+                                                            <p class="text-muted small">Cette action est irréversible.</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <form method="POST" action="{{ path('dashbord_user_delete', {id: user.id}) }}" style="display: inline;">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                                                <button type="submit" class="btn btn-danger">
+                                                                    <i class="bi bi-trash me-2"></i>Supprimer
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <h5>Aucun utilisateur trouvé</h5>
+                            <p class="text-muted">Commencez par ajouter votre premier utilisateur</p>
+                            <a href="{{ path('dashbord_user_new') }}" class="btn btn-primary mt-3">
+                                <i class="bi bi-plus-circle me-2"></i>Ajouter un utilisateur
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

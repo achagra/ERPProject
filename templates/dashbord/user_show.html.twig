@@ -1,0 +1,193 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}{{ user.nom }} {{ user.prenom }} - ERP{% endblock %}
+{% block page_title %}Détails de l'utilisateur{% endblock %}
+{% block icon %}person-vcard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- User Info -->
+        <div class="col-lg-4 mb-4">
+            <div class="card" style="text-align: center;">
+                <div style="padding: 2rem 1.5rem 1rem; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); border-radius: 12px 12px 0 0;">
+                    <div style="width: 100px; height: 100px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 2.5rem; margin: 0 auto 1rem;">
+                        {{ user.prenom|slice(0, 1)|upper }}{{ user.nom|slice(0, 1)|upper }}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title" style="font-weight: 700; color: var(--dark);">
+                        {{ user.nom }} {{ user.prenom }}
+                    </h4>
+                    <div style="margin: 1.5rem 0;">
+                        {% if user.role == 'ROLE_ADMIN' %}
+                            <span class="badge" style="background: #dbeafe; color: #1e40af; padding: 0.6rem 1rem; font-size: 0.85rem;">
+                                <i class="bi bi-shield-fill me-1"></i>Administrator
+                            </span>
+                        {% elseif user.role == 'ROLE_USER' %}
+                            <span class="badge" style="background: #dcfce7; color: #15803d; padding: 0.6rem 1rem; font-size: 0.85rem;">
+                                <i class="bi bi-person-fill me-1"></i>Utilisateur
+                            </span>
+                        {% else %}
+                            <span class="badge" style="background: #fef3c7; color: #92400e; padding: 0.6rem 1rem; font-size: 0.85rem;">
+                                {{ user.role }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                        <a href="{{ path('dashbord_user_edit', {id: user.id}) }}" class="btn btn-warning flex-fill">
+                            <i class="bi bi-pencil me-2"></i>Modifier
+                        </a>
+                        <button type="button" class="btn btn-danger flex-fill" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="bi bi-trash me-2"></i>Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Details -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-text me-2"></i>Informations Personnelles
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label style="font-weight: 600; color: var(--text); margin-bottom: 0.5rem; display: block;">
+                                <i class="bi bi-person me-2"></i>Nom
+                            </label>
+                            <div style="padding: 0.75rem; background: var(--light); border-radius: 6px; border: 1px solid var(--border);">
+                                {{ user.nom }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label style="font-weight: 600; color: var(--text); margin-bottom: 0.5rem; display: block;">
+                                <i class="bi bi-person me-2"></i>Prénom
+                            </label>
+                            <div style="padding: 0.75rem; background: var(--light); border-radius: 6px; border: 1px solid var(--border);">
+                                {{ user.prenom }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label style="font-weight: 600; color: var(--text); margin-bottom: 0.5rem; display: block;">
+                                <i class="bi bi-envelope me-2"></i>Email
+                            </label>
+                            <div style="padding: 0.75rem; background: var(--light); border-radius: 6px; border: 1px solid var(--border);">
+                                <a href="mailto:{{ user.email }}" style="color: var(--primary); text-decoration: none;">
+                                    {{ user.email }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label style="font-weight: 600; color: var(--text); margin-bottom: 0.5rem; display: block;">
+                                <i class="bi bi-telephone me-2"></i>Téléphone
+                            </label>
+                            <div style="padding: 0.75rem; background: var(--light); border-radius: 6px; border: 1px solid var(--border);">
+                                {% if user.telephone %}
+                                    <a href="tel:{{ user.telephone }}" style="color: var(--success); text-decoration: none;">
+                                        {{ user.telephone }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Non fourni</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label style="font-weight: 600; color: var(--text); margin-bottom: 0.5rem; display: block;">
+                                <i class="bi bi-shield-fill me-2"></i>Rôle
+                            </label>
+                            <div style="padding: 0.75rem; background: var(--light); border-radius: 6px; border: 1px solid var(--border);">
+                                {% if user.role == 'ROLE_ADMIN' %}
+                                    <span class="badge" style="background: #dbeafe; color: #1e40af;">
+                                        <i class="bi bi-shield-fill me-1"></i>Admin
+                                    </span>
+                                {% elseif user.role == 'ROLE_USER' %}
+                                    <span class="badge" style="background: #dcfce7; color: #15803d;">
+                                        <i class="bi bi-person-fill me-1"></i>Utilisateur
+                                    </span>
+                                {% else %}
+                                    <span class="badge" style="background: #fef3c7; color: #92400e;">
+                                        {{ user.role }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label style="font-weight: 600; color: var(--text); margin-bottom: 0.5rem; display: block;">
+                                <i class="bi bi-key me-2"></i>ID Utilisateur
+                            </label>
+                            <div style="padding: 0.75rem; background: var(--light); border-radius: 6px; border: 1px solid var(--border);">
+                                <code>#{{ user.id }}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning me-2"></i>Actions Rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <a href="{{ path('dashbord_user_edit', {id: user.id}) }}" class="btn btn-warning" style="padding: 0.75rem 1rem;">
+                            <i class="bi bi-pencil me-2"></i>Modifier l'utilisateur
+                        </a>
+                        <a href="{{ path('dashbord_users') }}" class="btn btn-secondary" style="padding: 0.75rem 1rem;">
+                            <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+                        </a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" style="padding: 0.75rem 1rem;">
+                            <i class="bi bi-trash me-2"></i>Supprimer l'utilisateur
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none;">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmation de suppression
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem;">
+                    Êtes-vous absolument sûr de vouloir supprimer <strong>{{ user.nom }} {{ user.prenom }}</strong>?
+                </p>
+                <div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 1rem; border-radius: 6px; color: #7f1d1d;">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>Attention:</strong> Cette action est irréversible et supprimera toutes les données associées à cet utilisateur.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form method="POST" action="{{ path('dashbord_user_delete', {id: user.id}) }}" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Supprimer définitivement
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
