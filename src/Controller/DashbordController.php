@@ -2,13 +2,27 @@
 
 namespace App\Controller;
 
+use App\Entity\Client;
+use App\Entity\Entreprise;
 use App\Entity\Employe;
+use App\Entity\Fournisseur;
+use App\Entity\Projet;
 use App\Entity\Users;
+use App\Form\ClientType;
+use App\Form\EntrepriseType;
 use App\Form\EmployeType;
+use App\Form\FournisseurType;
+use App\Form\ProjetType;
 use App\Form\UsersType;
+use App\Repository\ClientRepository;
+use App\Repository\EntrepriseRepository;
 use App\Repository\EmployeRepository;
+use App\Repository\FournisseurRepository;
+use App\Repository\ProjetRepository;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,21 +35,129 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DashbordController extends AbstractController
 {
     #[Route('/', name: 'dashbord_index', methods: ['GET'])]
-    public function index(EmployeRepository $employeRepo): Response
-{
-    if ($this->isGranted('ROLE_SUPER_ADMIN')) {
-        return $this->redirectToRoute('dashbord_users');
+    public function index(
+        EmployeRepository $employeRepo,
+        ClientRepository $clientRepo,
+        FournisseurRepository $fournisseurRepo
+    ): Response {
+        if ($this->isGranted('ROLE_SUPER_ADMIN')) {
+            return $this->redirectToRoute('dashbord_users');
+        }
+
+        /** @var Users $admin */
+        $admin = $this->getUser();
+        $employes = $employeRepo->findByCreatedBy($admin);
+        $clients = $clientRepo->findBy(['createdBy' => $admin]);
+        $fournisseurs = $fournisseurRepo->findBy(['createdBy' => $admin]);
+
+        $totalClientsParticuliers = count(array_filter($clients, static fn (Client $client): bool => $client->getType() === 'particulier'));
+        $totalClientsProfessionnels = count(array_filter($clients, static fn (Client $client): bool => $client->getType() === 'entreprise'));
+        $totalFournisseursParticuliers = count(array_filter($fournisseurs, static fn (Fournisseur $fournisseur): bool => $fournisseur->getType() === 'particulier'));
+        $totalFournisseursProfessionnels = count(array_filter($fournisseurs, static fn (Fournisseur $fournisseur): bool => $fournisseur->getType() === 'entreprise'));
+
+        return $this->render('dashbord/entreprise.html.twig', [
+            'totalEmployes' => count($employes),
+            'totalClientsParticuliers' => $totalClientsParticuliers,
+            'totalClientsProfessionnels' => $totalClientsProfessionnels,
+            'totalFournisseursParticuliers' => $totalFournisseursParticuliers,
+            'totalFournisseursProfessionnels' => $totalFournisseursProfessionnels,
+        ]);
     }
 
-    /** @var Users $admin */
-    $admin = $this->getUser();
-    $employes = $employeRepo->findByCreatedBy($admin);
+    #[Route('/entreprise/profil', name: 'dashbord_entreprise_profile', methods: ['GET', 'POST'])]
+    public function profileEntreprise(
+        Request $request,
+        EntityManagerInterface $em,
+        EntrepriseRepository $entrepriseRepository
+    ): Response {
+        /** @var Users $admin */
+        $admin = $this->getUser();
 
-    return $this->render('dashbord/entreprise.html.twig', [
-        'totalEmployes' => count($employes),
-        'employes'      => array_slice($employes, 0, 5),
-    ]);
-}
+        $entreprise = $entrepriseRepository->findOneBy(['createdBy' => $admin]);
+        if (!$entreprise) {
+            $entreprise = new Entreprise();
+            $entreprise->setCreatedBy($admin);
+        }
+
+        $form = $this->createForm(EntrepriseType::class, $entreprise);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile|null $photoFile */
+            $photoFile = $form->get('photoFile')->getData();
+
+            if ($photoFile instanceof UploadedFile) {
+                $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/entreprises';
+                $newFilename = uniqid('entreprise_', true) . '.' . $photoFile->guessExtension();
+
+                try {
+                    $photoFile->move($uploadDir, $newFilename);
+                    $entreprise->setPhotoFilename($newFilename);
+                } catch (FileException $exception) {
+                    $this->addFlash('danger', 'Impossible de téléverser la photo de l\'entreprise.');
+                }
+            }
+
+            $em->persist($entreprise);
+            $em->flush();
+
+            $this->addFlash('success', 'Profil de l\'entreprise enregistré avec succès.');
+
+            return $this->redirectToRoute('dashbord_entreprise_profile');
+        }
+
+        return $this->render('dashbord/entreprise_profile.html.twig', [
+            'form' => $form,
+            'entreprise' => $entreprise,
+        ]);
+    }
+
+    #[Route('/projets', name: 'dashbord_projets', methods: ['GET'])]
+    public function manageProjets(ProjetRepository $repo): Response
+    {
+        /** @var Users $admin */
+        $admin = $this->getUser();
+        $projets = $repo->findBy(['createdBy' => $admin], ['id' => 'DESC']);
+
+        $totalProjets = count($projets);
+        $totalActifs = count(array_filter($projets, static fn (Projet $projet): bool => $projet->isActive()));
+        $totalInactifs = $totalProjets - $totalActifs;
+
+        return $this->render('dashbord/projets.html.twig', [
+            'projets' => $projets,
+            'totalProjets' => $totalProjets,
+            'totalActifs' => $totalActifs,
+            'totalInactifs' => $totalInactifs,
+        ]);
+    }
+
+    #[Route('/projets/new', name: 'dashbord_projet_new', methods: ['GET', 'POST'])]
+    public function newProjet(Request $request, EntityManagerInterface $em): Response
+    {
+        $projet = new Projet();
+        $projet->setIsActive(true);
+
+        $form = $this->createForm(ProjetType::class, $projet);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Users $admin */
+            $admin = $this->getUser();
+            $projet->setCreatedBy($admin);
+
+            $em->persist($projet);
+            $em->flush();
+
+            $this->addFlash('success', 'Projet ajouté avec succès.');
+
+            return $this->redirectToRoute('dashbord_projets');
+        }
+
+        return $this->render('dashbord/projet_form.html.twig', [
+            'form' => $form,
+            'title' => 'Ajouter un projet',
+        ]);
+    }
 
     // ================= USERS (SUPER_ADMIN uniquement) =================
     #[Route('/users', name: 'dashbord_users', methods: ['GET'])]
@@ -128,7 +250,9 @@ public function newUser(
     public function deleteUser(Request $request, Users $user, EntityManagerInterface $em): Response
     {
         if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
-            if ($user->getId() === $this->getUser()?->getId()) {
+            $currentUser = $this->getUser();
+
+            if ($currentUser instanceof Users && $user->getId() === $currentUser->getId()) {
                 $this->addFlash('danger', 'Vous ne pouvez pas supprimer votre propre compte.');
                 return $this->redirectToRoute('dashbord_users');
             }
@@ -192,7 +316,7 @@ public function newUser(
     #[Route('/employes/{id}/edit', name: 'dashbord_employe_edit', methods: ['GET', 'POST'])]
     public function editEmploye(Request $request, Employe $employe, EntityManagerInterface $em): Response
     {
-        $this->denyAccessUnlessOwner($employe);
+        $this->denyAccessUnlessEmployeOwner($employe);
 
         $form = $this->createForm(EmployeType::class, $employe);
         $form->handleRequest($request);
@@ -213,7 +337,7 @@ public function newUser(
     #[Route('/employes/{id}/delete', name: 'dashbord_employe_delete', methods: ['POST'])]
     public function deleteEmploye(Request $request, Employe $employe, EntityManagerInterface $em): Response
     {
-        $this->denyAccessUnlessOwner($employe);
+        $this->denyAccessUnlessEmployeOwner($employe);
 
         if ($this->isCsrfTokenValid('delete_employe' . $employe->getId(), $request->request->get('_token'))) {
             $em->remove($employe);
@@ -225,13 +349,191 @@ public function newUser(
         return $this->redirectToRoute('dashbord_employes');
     }
 
-    private function denyAccessUnlessOwner(Employe $employe): void
+    #[Route('/clients', name: 'dashbord_clients', methods: ['GET'])]
+    public function manageClients(ClientRepository $repo): Response
+    {
+        /** @var Users $admin */
+        $admin = $this->getUser();
+        $clients = $repo->findBy(['createdBy' => $admin], ['id' => 'DESC']);
+
+        $totalParticuliers = count(array_filter($clients, static fn (Client $client): bool => $client->getType() === 'particulier'));
+        $totalProfessionnels = count(array_filter($clients, static fn (Client $client): bool => $client->getType() === 'entreprise'));
+
+        return $this->render('dashbord/clients.html.twig', [
+            'clients' => $clients,
+            'totalParticuliers' => $totalParticuliers,
+            'totalProfessionnels' => $totalProfessionnels,
+        ]);
+    }
+
+    #[Route('/clients/new', name: 'dashbord_client_new', methods: ['GET', 'POST'])]
+    public function newClient(Request $request, EntityManagerInterface $em): Response
+    {
+        $client = new Client();
+
+        $form = $this->createForm(ClientType::class, $client);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Users $admin */
+            $admin = $this->getUser();
+            $client->setCreatedBy($admin);
+
+            $em->persist($client);
+            $em->flush();
+
+            $this->addFlash('success', 'Client ajouté avec succès.');
+            return $this->redirectToRoute('dashbord_clients');
+        }
+
+        return $this->render('dashbord/client_form.html.twig', [
+            'form' => $form,
+            'title' => 'Ajouter un client',
+        ]);
+    }
+
+    #[Route('/clients/{id}/edit', name: 'dashbord_client_edit', methods: ['GET', 'POST'])]
+    public function editClient(Request $request, Client $client, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessClientOwner($client);
+
+        $form = $this->createForm(ClientType::class, $client);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+
+            $this->addFlash('success', 'Client modifié avec succès.');
+            return $this->redirectToRoute('dashbord_clients');
+        }
+
+        return $this->render('dashbord/client_form.html.twig', [
+            'form' => $form,
+            'title' => 'Modifier ' . $client->getNomComplet(),
+        ]);
+    }
+
+    #[Route('/clients/{id}/delete', name: 'dashbord_client_delete', methods: ['POST'])]
+    public function deleteClient(Request $request, Client $client, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessClientOwner($client);
+
+        if ($this->isCsrfTokenValid('delete_client' . $client->getId(), $request->request->get('_token'))) {
+            $em->remove($client);
+            $em->flush();
+
+            $this->addFlash('success', 'Client supprimé avec succès.');
+        }
+
+        return $this->redirectToRoute('dashbord_clients');
+    }
+
+    #[Route('/fournisseurs', name: 'dashbord_fournisseurs', methods: ['GET'])]
+    public function manageFournisseurs(FournisseurRepository $repo): Response
+    {
+        /** @var Users $admin */
+        $admin = $this->getUser();
+        $fournisseurs = $repo->findBy(['createdBy' => $admin], ['id' => 'DESC']);
+
+        $totalParticuliers = count(array_filter($fournisseurs, static fn (Fournisseur $fournisseur): bool => $fournisseur->getType() === 'particulier'));
+        $totalProfessionnels = count(array_filter($fournisseurs, static fn (Fournisseur $fournisseur): bool => $fournisseur->getType() === 'entreprise'));
+
+        return $this->render('dashbord/fournisseurs.html.twig', [
+            'fournisseurs' => $fournisseurs,
+            'totalParticuliers' => $totalParticuliers,
+            'totalProfessionnels' => $totalProfessionnels,
+        ]);
+    }
+
+    #[Route('/fournisseurs/new', name: 'dashbord_fournisseur_new', methods: ['GET', 'POST'])]
+    public function newFournisseur(Request $request, EntityManagerInterface $em): Response
+    {
+        $fournisseur = new Fournisseur();
+
+        $form = $this->createForm(FournisseurType::class, $fournisseur);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Users $admin */
+            $admin = $this->getUser();
+            $fournisseur->setCreatedBy($admin);
+
+            $em->persist($fournisseur);
+            $em->flush();
+
+            $this->addFlash('success', 'Fournisseur ajouté avec succès.');
+            return $this->redirectToRoute('dashbord_fournisseurs');
+        }
+
+        return $this->render('dashbord/fournisseur_form.html.twig', [
+            'form' => $form,
+            'title' => 'Ajouter un fournisseur',
+        ]);
+    }
+
+    #[Route('/fournisseurs/{id}/edit', name: 'dashbord_fournisseur_edit', methods: ['GET', 'POST'])]
+    public function editFournisseur(Request $request, Fournisseur $fournisseur, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessFournisseurOwner($fournisseur);
+
+        $form = $this->createForm(FournisseurType::class, $fournisseur);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+
+            $this->addFlash('success', 'Fournisseur modifié avec succès.');
+            return $this->redirectToRoute('dashbord_fournisseurs');
+        }
+
+        return $this->render('dashbord/fournisseur_form.html.twig', [
+            'form' => $form,
+            'title' => 'Modifier ' . $fournisseur->getNomComplet(),
+        ]);
+    }
+
+    #[Route('/fournisseurs/{id}/delete', name: 'dashbord_fournisseur_delete', methods: ['POST'])]
+    public function deleteFournisseur(Request $request, Fournisseur $fournisseur, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessFournisseurOwner($fournisseur);
+
+        if ($this->isCsrfTokenValid('delete_fournisseur' . $fournisseur->getId(), $request->request->get('_token'))) {
+            $em->remove($fournisseur);
+            $em->flush();
+
+            $this->addFlash('success', 'Fournisseur supprimé avec succès.');
+        }
+
+        return $this->redirectToRoute('dashbord_fournisseurs');
+    }
+
+    private function denyAccessUnlessEmployeOwner(Employe $employe): void
     {
         /** @var Users $current */
         $current = $this->getUser();
 
         if ($employe->getCreatedBy()?->getId() !== $current->getId()) {
             throw $this->createAccessDeniedException("Vous n'avez pas accès à cet employé.");
+        }
+    }
+
+    private function denyAccessUnlessClientOwner(Client $client): void
+    {
+        /** @var Users $current */
+        $current = $this->getUser();
+
+        if ($client->getCreatedBy()?->getId() !== $current->getId()) {
+            throw $this->createAccessDeniedException("Vous n'avez pas accès à ce client.");
+        }
+    }
+
+    private function denyAccessUnlessFournisseurOwner(Fournisseur $fournisseur): void
+    {
+        /** @var Users $current */
+        $current = $this->getUser();
+
+        if ($fournisseur->getCreatedBy()?->getId() !== $current->getId()) {
+            throw $this->createAccessDeniedException("Vous n'avez pas accès à ce fournisseur.");
         }
     }
 }

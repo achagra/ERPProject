@@ -1,0 +1,43 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}{{ title }} - ERP{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block icon %}kanban{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-kanban me-2"></i>{{ title }}</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+
+                    <div class="col-md-8">
+                        {{ form_label(form.nom, 'Nom du projet', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom du projet'}}) }}
+                    </div>
+
+                    <div class="col-md-4">
+                        {{ form_label(form.isActive, 'Statut', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.isActive, {'attr': {'class': 'form-select'}}) }}
+                    </div>
+
+                    <div class="col-12 d-flex gap-2 pt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Enregistrer
+                        </button>
+                        <a href="{{ path('dashbord_projets') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

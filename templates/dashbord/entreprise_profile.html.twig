@@ -1,0 +1,81 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}Profil de l'entreprise - ERP{% endblock %}
+{% block page_title %}Profil de l'entreprise{% endblock %}
+{% block icon %}building{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-building me-2"></i>Informations de l'entreprise</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+
+                    <div class="col-md-6">
+                        {{ form_label(form.nom, 'Nom', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom de l\'entreprise'}}) }}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_label(form.ville, 'Ville', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.ville, {'attr': {'class': 'form-control', 'placeholder': 'Ville'}}) }}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form_label(form.adresse, 'Adresse', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.adresse, {'attr': {'class': 'form-control', 'placeholder': 'Adresse complète'}}) }}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form_label(form.photoFile, 'Photo / Logo', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.photoFile, {'attr': {'class': 'form-control'}}) }}
+                        {% if form.photoFile.vars.help %}
+                            <small class="text-muted d-block mt-1">{{ form.photoFile.vars.help }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12 d-flex gap-2 pt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Enregistrer
+                        </button>
+                        <a href="{{ path('dashbord_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Retour
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-image me-2"></i>Aperçu</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if entreprise.photoFilename %}
+                        <img src="{{ asset('uploads/entreprises/' ~ entreprise.photoFilename) }}" alt="Logo entreprise" class="img-fluid rounded mb-3" style="max-height: 220px; object-fit: cover;">
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-building"></i>
+                            <h5>Aucune photo</h5>
+                            <p class="text-muted mb-0">Ajoutez une image pour personnaliser le profil de l'entreprise.</p>
+                        </div>
+                    {% endif %}
+                    <hr>
+                    <div class="text-start">
+                        <p class="mb-1"><strong>Nom:</strong> {{ entreprise.nom ?: '-' }}</p>
+                        <p class="mb-1"><strong>Adresse:</strong> {{ entreprise.adresse ?: '-' }}</p>
+                        <p class="mb-0"><strong>Ville:</strong> {{ entreprise.ville ?: '-' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

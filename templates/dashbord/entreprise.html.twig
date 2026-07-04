@@ -20,68 +20,54 @@
                 <div class="stat-label">Employés</div>
             </div>
         </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Profil de l'Entreprise</h5>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--success);">
+                    <i class="bi bi-person"></i>
                 </div>
-                <div class="card-body">
-                    <a href="#" class="btn btn-primary">Modifier le profil entreprise</a>
-                </div>
+                <div class="stat-value">{{ totalClientsParticuliers }}</div>
+                <div class="stat-label">Clients particuliers</div>
             </div>
         </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Actions Rapides</h5>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--info);">
+                    <i class="bi bi-building"></i>
                 </div>
-                <div class="card-body">
-                    <a href="{{ path('dashbord_employe_new') }}" class="btn btn-success w-100 mb-2">
-                        <i class="bi bi-person-plus"></i> Ajouter un Employé
-                    </a>
-                    <a href="#" class="btn btn-info w-100">
-                        <i class="bi bi-gear"></i> Autres paramètres
-                    </a>
-                </div>
+                <div class="stat-value">{{ totalClientsProfessionnels }}</div>
+                <div class="stat-label">Clients professionnels</div>
             </div>
         </div>
-    </div>
-
-    {% if employes is not empty %}
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Derniers employés ajoutés</h5>
-                    <a href="{{ path('dashbord_employes') }}" class="btn btn-light btn-sm">Voir tous</a>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--warning);">
+                    <i class="bi bi-person"></i>
                 </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Nom</th>
-                                <th>Département</th>
-                                <th>Téléphone</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for employe in employes %}
-                            <tr>
-                                <td><strong>{{ employe.nom }} {{ employe.prenom }}</strong></td>
-                                <td>{{ employe.departement }}</td>
-                                <td>{{ employe.telephone ?: '-' }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="stat-value">{{ totalFournisseursParticuliers }}</div>
+                <div class="stat-label">Fournisseurs particuliers</div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--secondary);">
+                    <i class="bi bi-building"></i>
                 </div>
+                <div class="stat-value">{{ totalFournisseursProfessionnels }}</div>
+                <div class="stat-label">Fournisseurs professionnels</div>
             </div>
         </div>
     </div>
-    {% endif %}
+
+    <div class="row mb-4">
+        <div class="col-12 d-flex gap-2 flex-wrap">
+            <a href="{{ path('dashbord_clients') }}" class="btn btn-primary">
+                <i class="bi bi-person-lines-fill me-2"></i>Clients
+            </a>
+            <a href="{{ path('dashbord_fournisseurs') }}" class="btn btn-info">
+                <i class="bi bi-truck me-2"></i>Fournisseurs
+            </a>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

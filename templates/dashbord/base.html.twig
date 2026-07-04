@@ -98,6 +98,65 @@
             width: 20px;
         }
 
+        .sidebar-section {
+            margin: 1.5rem 0;
+            list-style: none;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.45);
+            margin-bottom: 0.75rem;
+            padding: 0 0.25rem;
+        }
+
+        .sidebar-action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .sidebar-action {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.25s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: none !important;
+        }
+
+        .sidebar-action:hover {
+            transform: translateX(4px);
+        }
+
+        .sidebar-action.btn-success {
+            background: rgba(16, 185, 129, 0.16);
+            color: #a7f3d0;
+        }
+
+        .sidebar-action.btn-primary {
+            background: rgba(59, 130, 246, 0.18);
+            color: #bfdbfe;
+        }
+
+        .sidebar-action.btn-dark {
+            background: rgba(255, 255, 255, 0.08);
+            color: #f9fafb;
+        }
+
+        .sidebar-action.btn-info {
+            background: rgba(14, 165, 233, 0.18);
+            color: #e0f2fe;
+        }
+
         /* Main Content */
         .main-content {
             flex: 1;
@@ -141,7 +200,6 @@
 
         .card:hover {
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-            transform: translateY(-2px);
         }
 
         .card-header {
@@ -373,6 +431,14 @@
             padding: 1.5rem;
         }
 
+        .modal {
+            z-index: 2000;
+        }
+
+        .modal-backdrop {
+            z-index: 1990;
+        }
+
         {% block stylesheets %}{% endblock %}
     </style>
 </head>
@@ -391,6 +457,34 @@
                             <i class="bi bi-house-door"></i> Dashboard
                         </a>
                     </li>
+                    {% if is_granted('ROLE_ADMIN') and not is_granted('ROLE_SUPER_ADMIN') %}
+                        <li class="sidebar-section">
+                            <div class="sidebar-section-title">Actions rapides</div>
+                            <div class="sidebar-action-list">
+                                <a href="{{ path('dashbord_employe_new') }}" class="sidebar-action btn btn-success">
+                                    <i class="bi bi-person-plus-fill"></i> Ajouter un employé
+                                </a>
+                                <a href="{{ path('dashbord_employes') }}" class="sidebar-action btn btn-primary">
+                                    <i class="bi bi-people-fill"></i> Liste des employés
+                                </a>
+                                <a href="{{ path('dashbord_clients') }}" class="sidebar-action btn btn-primary {% if app.request.attributes.get('_route') starts with 'dashbord_client' %}active{% endif %}">
+                                    <i class="bi bi-person-lines-fill"></i> Clients
+                                </a>
+                                <a href="{{ path('dashbord_fournisseurs') }}" class="sidebar-action btn btn-info {% if app.request.attributes.get('_route') starts with 'dashbord_fournisseur' %}active{% endif %}">
+                                    <i class="bi bi-truck"></i> Fournisseurs
+                                </a>
+                                <a href="{{ path('dashbord_projet_new') }}" class="sidebar-action btn btn-info {% if app.request.attributes.get('_route') == 'dashbord_projet_new' %}active{% endif %}">
+                                    <i class="bi bi-kanban"></i> Ajouter un projet
+                                </a>
+                                <a href="{{ path('dashbord_projets') }}" class="sidebar-action btn btn-warning {% if app.request.attributes.get('_route') == 'dashbord_projets' %}active{% endif %}">
+                                    <i class="bi bi-kanban-fill"></i> Liste des projets
+                                </a>
+                                <a href="{{ path('dashbord_entreprise_profile') }}" class="sidebar-action btn btn-dark {% if app.request.attributes.get('_route') == 'dashbord_entreprise_profile' %}active{% endif %}">
+                                    <i class="bi bi-building"></i> Profil de l'entreprise
+                                </a>
+                            </div>
+                        </li>
+                    {% endif %}
                     {% if is_granted('ROLE_SUPER_ADMIN') %}
                     <li>
                         <a href="{{ path('dashbord_users') }}" class="{% if app.request.attributes.get('_route') == 'dashbord_users' %}active{% endif %}">
