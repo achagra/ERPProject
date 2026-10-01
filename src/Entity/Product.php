@@ -3,7 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+
+use App\Entity\Client;
+use App\Entity\Fournisseur;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -22,8 +26,20 @@ class Product
     #[ORM\Column]
     private ?int $quantity = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $assetType = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
     #[ORM\ManyToOne(inversedBy: 'products')]
     private ?Category $category = null;
+
+    #[ORM\ManyToOne(targetEntity: Client::class)]
+    private ?Client $client = null;
+
+    #[ORM\ManyToOne(targetEntity: Fournisseur::class)]
+    private ?Fournisseur $fournisseur = null;
 
     public function getId(): ?int
     {
@@ -66,6 +82,30 @@ class Product
         return $this;
     }
 
+    public function getAssetType(): ?string
+    {
+        return $this->assetType;
+    }
+
+    public function setAssetType(?string $assetType): static
+    {
+        $this->assetType = $assetType;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
     public function getCategory(): ?Category
     {
         return $this->category;
@@ -74,6 +114,30 @@ class Product
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function getClient(): ?Client
+    {
+        return $this->client;
+    }
+
+    public function setClient(?Client $client): static
+    {
+        $this->client = $client;
+
+        return $this;
+    }
+
+    public function getFournisseur(): ?Fournisseur
+    {
+        return $this->fournisseur;
+    }
+
+    public function setFournisseur(?Fournisseur $fournisseur): static
+    {
+        $this->fournisseur = $fournisseur;
 
         return $this;
     }

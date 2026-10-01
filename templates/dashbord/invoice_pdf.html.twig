@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Facture</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #222; font-size: 13px; }
+        .header { border-bottom: 2px solid #0d6efd; padding-bottom: 12px; margin-bottom: 20px; }
+        .section { margin-bottom: 18px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f2f2f2; }
+        .total { font-weight: bold; text-align: right; margin-top: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Facture</h2>
+        <div><strong>Vendeur :</strong> {{ entreprise ? entreprise.nom : 'Nom de l’entreprise' }}</div>
+        <div>{{ entreprise ? entreprise.adresse : 'Adresse' }}</div>
+        <div>{{ entreprise ? entreprise.ville : 'Ville' }}</div>
+    </div>
+
+    <div class="section">
+        <div><strong>Client :</strong> {{ product.client ? product.client.nomComplet : 'Aucun client associé' }}</div>
+        <div>{{ product.client ? product.client.adresse : '' }}</div>
+        <div>{{ product.client ? product.client.email : '' }}</div>
+        <div>{{ product.client ? product.client.telephone : '' }}</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Description</th>
+                <th>Prix unitaire</th>
+                <th>Quantité</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.description ?: '-' }}</td>
+                <td>{{ product.price|number_format(0, ',', ' ') }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>{{ (product.price * product.quantity)|number_format(0, ',', ' ') }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="total">Total général : {{ (product.price * product.quantity)|number_format(0, ',', ' ') }}</div>
+</body>
+</html>

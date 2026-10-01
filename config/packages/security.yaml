@@ -29,6 +29,7 @@ security:
                 target: app_login
 
     access_control:
+        - { path: ^/facture-public, roles: PUBLIC_ACCESS }
         - { path: ^/super-admin, roles: ROLE_SUPER_ADMIN }
         - { path: ^/dashbord, roles: ROLE_ADMIN }
         - { path: ^/user, roles: ROLE_ADMIN }

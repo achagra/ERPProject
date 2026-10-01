@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Facture {{ type == 'achat' ? 'achat' : 'vente' }} #{{ commande.id }}</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; color: #222; font-size: 12px; }
+        .header { border-bottom: 2px solid #0d6efd; padding-bottom: 12px; margin-bottom: 20px; }
+        .columns { width: 100%; margin-bottom: 20px; }
+        .column { width: 48%; display: inline-block; vertical-align: top; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f2f2f2; }
+        .qr { margin-top: 24px; text-align: center; }
+        .qr img { width: 150px; height: 150px; }
+        .muted { color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Facture {{ type == 'achat' ? 'achat' : 'vente' }} #{{ commande.id }}</h2>
+        <div><strong>Référence :</strong> {{ type == 'achat' ? 'ACH-' : 'VTE-' }}{{ '%06d'|format(commande.id) }}</div>
+        <div><strong>Date :</strong> {{ (type == 'achat' ? commande.dateFacture : commande.dateCommande)|date('d/m/Y') }}</div>
+    </div>
+
+    <div class="columns">
+        <div class="column">
+            <strong>{{ type == 'achat' ? 'Fournisseur' : 'Client' }}</strong><br>
+            {{ (type == 'achat' ? commande.fournisseur : commande.client).nomComplet|default('-') }}
+        </div>
+        <div class="column">
+            <strong>Entrepôt</strong><br>
+            {{ commande.entrepot.nom|default('-') }}
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Entrepôt</th>
+                <th>Référence</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ type == 'achat' ? 'Commande fournisseur' : 'Commande client' }}</td>
+                <td>{{ (type == 'achat' ? commande.dateFacture : commande.dateCommande)|date('d/m/Y') }}</td>
+                <td>{{ commande.entrepot.nom|default('-') }}</td>
+                <td>{{ type == 'achat' ? 'ACH-' : 'VTE-' }}{{ '%06d'|format(commande.id) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% if commande.notes %}
+        <p><strong>Notes / conditions :</strong><br>{{ commande.notes|nl2br }}</p>
+    {% endif %}
+
+    <div class="qr">
+        <div class="muted">Scannez ce QR code pour ouvrir cette facture sur votre téléphone.</div>
+        <img src="{{ qrCode }}" alt="QR code de la facture">
+    </div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}Commandes Achats - ERP{% endblock %}
+{% block page_title %}Commandes Achats{% endblock %}
+{% block icon %}bag-check{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--primary);"><i class="bi bi-truck"></i></div>
+                <div class="stat-value">{{ commandes|length }}</div>
+                <div class="stat-label">Total commandes achats</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-end">
+            <a href="{{ path('dashbord_achat_new') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Nouvelle commande fournisseur
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>Liste des commandes achats</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if commandes is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Fournisseur</th>
+                                        <th>Date facture</th>
+                                        <th>Entrepôt</th>
+                                        <th>Notes / conditions</th>
+                                        <th class="text-end">Facture</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for commande in commandes %}
+                                        <tr>
+                                            <td>{{ commande.fournisseur.nomComplet }}</td>
+                                            <td>{{ commande.dateFacture ? commande.dateFacture|date('d/m/Y') : '-' }}</td>
+                                            <td>{{ commande.entrepot.nom }}</td>
+                                            <td>{{ commande.notes ?: '-' }}</td>
+                                            <td class="text-end text-nowrap">
+                                                <a href="{{ path('dashbord_achat_facture', {id: commande.id}) }}" class="btn btn-sm btn-outline-primary" title="Ouvrir la facture">
+                                                    <i class="bi bi-receipt"></i>
+                                                </a>
+                                                <a href="{{ path('dashbord_achat_facture_pdf', {id: commande.id}) }}" class="btn btn-sm btn-outline-secondary" title="Télécharger le PDF">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <h5>Aucune commande achat trouvée</h5>
+                            <p class="text-muted">Commencez par ajouter votre première commande fournisseur</p>
+                            <a href="{{ path('dashbord_achat_new') }}" class="btn btn-primary mt-3">
+                                <i class="bi bi-plus-circle me-2"></i>Nouvelle commande fournisseur
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}{{ title }} - ERP{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block icon %}cart-check{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-bag-check me-2"></i>{{ title }}</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+
+                    <div class="col-md-6">
+                        {{ form_label(form.client, 'Client', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.client, {'attr': {'class': 'form-select'}}) }}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_label(form.dateCommande, 'Date de commande', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.dateCommande, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_label(form.entrepot, 'Entrepôt', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.entrepot, {'attr': {'class': 'form-select'}}) }}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form_label(form.notes, 'Notes / conditions', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.notes, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+
+                    <div class="col-12 d-flex gap-2 pt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Enregistrer
+                        </button>
+                        <a href="{{ path('dashbord_ventes') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

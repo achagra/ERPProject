@@ -1,0 +1,81 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}Facture - ERP{% endblock %}
+{% block page_title %}Facture{% endblock %}
+{% block icon %}receipt{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-0">Facture</h5>
+                        <small class="text-muted">Produit : {{ product.name }}</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('dashbord_produit_facture_pdf', {id: product.id}) }}" class="btn btn-primary" target="_blank">
+                            <i class="bi bi-download me-2"></i>Télécharger PDF
+                        </a>
+                        <a href="{{ path('dashbord_produits') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Retour
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Vendeur</h6>
+                            <div>{{ entreprise ? entreprise.nom : 'Nom de l’entreprise' }}</div>
+                            <div>{{ entreprise ? entreprise.adresse : 'Adresse' }}</div>
+                            <div>{{ entreprise ? entreprise.ville : 'Ville' }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Client</h6>
+                            <div>{{ product.client ? product.client.nomComplet : 'Aucun client associé' }}</div>
+                            <div>{{ product.client ? product.client.adresse : '' }}</div>
+                            <div>{{ product.client ? product.client.email : '' }}</div>
+                            <div>{{ product.client ? product.client.telephone : '' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Description</th>
+                                    <th>Prix unitaire</th>
+                                    <th>Quantité</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.description ?: '-' }}</td>
+                                    <td>{{ product.price|number_format(0, ',', ' ') }}</td>
+                                    <td>{{ product.quantity }}</td>
+                                    <td>{{ (product.price * product.quantity)|number_format(0, ',', ' ') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <h5 class="fw-bold">Total général : {{ (product.price * product.quantity)|number_format(0, ',', ' ') }}</h5>
+                    </div>
+
+                    <div class="mt-4 border-top pt-3 text-muted small">
+                        <p class="mb-1">Scannez ce QR pour ouvrir la facture depuis votre téléphone.</p>
+                        <div class="d-inline-block border rounded p-2 bg-white">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ url('dashbord_produit_facture', {id: product.id}) }}" alt="QR facture" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

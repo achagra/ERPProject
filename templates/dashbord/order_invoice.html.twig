@@ -1,0 +1,88 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% set isAchat = type == 'achat' %}
+{% set party = isAchat ? commande.fournisseur : commande.client %}
+{% set invoiceDate = isAchat ? commande.dateFacture : commande.dateCommande %}
+{% set invoiceLabel = isAchat ? 'Facture achat' : 'Facture vente' %}
+{% set listRoute = isAchat ? 'dashbord_achats' : 'dashbord_ventes' %}
+
+{% block title %}{{ invoiceLabel }} #{{ commande.id }}{% endblock %}
+{% block page_title %}{{ invoiceLabel }}{% endblock %}
+{% block icon %}receipt{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <h5 class="mb-0">{{ invoiceLabel }} #{{ commande.id }}</h5>
+                        <small class="text-muted">Date : {{ invoiceDate ? invoiceDate|date('d/m/Y') : '-' }}</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ publicPdfUrl }}" class="btn btn-primary">
+                            <i class="bi bi-download me-2"></i>Télécharger PDF
+                        </a>
+                        <a href="{{ path(listRoute) }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Retour
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">{{ isAchat ? 'Fournisseur' : 'Client' }}</h6>
+                            <div>{{ party ? party.nomComplet : '-' }}</div>
+                            {% if party %}
+                                <div>{{ party.adresse|default('') }}</div>
+                                <div>{{ party.email|default('') }}</div>
+                                <div>{{ party.telephone|default('') }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Informations</h6>
+                            <div><strong>Référence :</strong> {{ isAchat ? 'ACH-' : 'VTE-' }}{{ '%06d'|format(commande.id) }}</div>
+                            <div><strong>Entrepôt :</strong> {{ commande.entrepot ? commande.entrepot.nom : '-' }}</div>
+                            <div><strong>Type :</strong> {{ isAchat ? 'Achat' : 'Vente' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Entrepôt</th>
+                                    <th>Référence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ isAchat ? 'Commande fournisseur' : 'Commande client' }}</td>
+                                    <td>{{ invoiceDate ? invoiceDate|date('d/m/Y') : '-' }}</td>
+                                    <td>{{ commande.entrepot ? commande.entrepot.nom : '-' }}</td>
+                                    <td>{{ isAchat ? 'ACH-' : 'VTE-' }}{{ '%06d'|format(commande.id) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if commande.notes %}
+                        <div class="mt-4">
+                            <h6 class="fw-bold">Notes / conditions</h6>
+                            <p class="mb-0">{{ commande.notes|nl2br }}</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-4 border-top pt-3 text-muted small text-center">
+                        <p class="mb-2">Scannez ce QR code pour ouvrir cette facture sur votre téléphone.</p>
+                        <img src="{{ qrCode }}" alt="QR code de la facture" width="180" height="180">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -2,22 +2,45 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Client;
+use App\Entity\CommandeAchat;
+use App\Entity\CommandeVente;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Writer\SvgWriter;
+use App\Entity\Entrepot;
 use App\Entity\Entreprise;
 use App\Entity\Employe;
 use App\Entity\Fournisseur;
+use App\Entity\Product;
 use App\Entity\Projet;
 use App\Entity\Users;
+use App\Form\CategoryType;
 use App\Form\ClientType;
+use App\Form\CommandeAchatType;
+use App\Form\CommandeVenteType;
+use App\Form\EntrepotType;
 use App\Form\EntrepriseType;
 use App\Form\EmployeType;
 use App\Form\FournisseurType;
+use App\Form\ProductType;
 use App\Form\ProjetType;
 use App\Form\UsersType;
+use App\Repository\CategoryRepository;
 use App\Repository\ClientRepository;
+use App\Repository\CommandeAchatRepository;
+use App\Repository\CommandeVenteRepository;
+use App\Repository\EntrepotRepository;
 use App\Repository\EntrepriseRepository;
 use App\Repository\EmployeRepository;
 use App\Repository\FournisseurRepository;
+use App\Repository\ProductRepository;
 use App\Repository\ProjetRepository;
 use App\Repository\UsersRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,6 +51,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/dashbord')]
@@ -129,6 +153,224 @@ class DashbordController extends AbstractController
             'totalActifs' => $totalActifs,
             'totalInactifs' => $totalInactifs,
         ]);
+    }
+
+    #[Route('/entrepots', name: 'dashbord_entrepots', methods: ['GET'])]
+    public function manageEntrepots(EntrepotRepository $repo): Response
+    {
+        /** @var Users $admin */
+        $admin = $this->getUser();
+        $entrepots = $repo->findByCreatedBy($admin);
+
+        $totalEntrepots = count($entrepots);
+        $totalActifs = count(array_filter($entrepots, static fn (Entrepot $entrepot): bool => $entrepot->isActive()));
+        $totalInactifs = $totalEntrepots - $totalActifs;
+
+        return $this->render('dashbord/entrepots.html.twig', [
+            'entrepots' => $entrepots,
+            'totalEntrepots' => $totalEntrepots,
+            'totalActifs' => $totalActifs,
+            'totalInactifs' => $totalInactifs,
+        ]);
+    }
+
+    #[Route('/entrepots/new', name: 'dashbord_entrepot_new', methods: ['GET', 'POST'])]
+    public function newEntrepot(Request $request, EntityManagerInterface $em): Response
+    {
+        $entrepot = new Entrepot();
+        $entrepot->setIsActive(true);
+
+        $form = $this->createForm(EntrepotType::class, $entrepot);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Users $admin */
+            $admin = $this->getUser();
+            $entrepot->setCreatedBy($admin);
+
+            $em->persist($entrepot);
+            $em->flush();
+
+            $this->addFlash('success', 'Entrepôt ajouté avec succès.');
+
+            return $this->redirectToRoute('dashbord_entrepots');
+        }
+
+        return $this->render('dashbord/entrepot_form.html.twig', [
+            'form' => $form,
+            'title' => 'Ajouter un entrepôt',
+        ]);
+    }
+
+    #[Route('/ventes', name: 'dashbord_ventes', methods: ['GET'])]
+    public function manageVentes(CommandeVenteRepository $repo): Response
+    {
+        /** @var Users $admin */
+        $admin = $this->getUser();
+
+        return $this->render('dashbord/ventes.html.twig', [
+            'commandes' => $repo->findByCreatedBy($admin),
+        ]);
+    }
+
+    #[Route('/ventes/new', name: 'dashbord_vente_new', methods: ['GET', 'POST'])]
+    public function newVente(Request $request, EntityManagerInterface $em): Response
+    {
+        $commande = new CommandeVente();
+        $commande->setDateCommande(new \DateTimeImmutable());
+
+        $form = $this->createForm(CommandeVenteType::class, $commande);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Users $admin */
+            $admin = $this->getUser();
+            $commande->setCreatedBy($admin);
+
+            $em->persist($commande);
+            $em->flush();
+
+            $this->addFlash('success', 'Commande vente ajoutée avec succès.');
+
+            return $this->redirectToRoute('dashbord_ventes');
+        }
+
+        return $this->render('dashbord/ventes_form.html.twig', [
+            'form' => $form,
+            'title' => 'Nouvelle commande client',
+        ]);
+    }
+
+    #[Route('/achats', name: 'dashbord_achats', methods: ['GET'])]
+    public function manageAchats(CommandeAchatRepository $repo): Response
+    {
+        /** @var Users $admin */
+        $admin = $this->getUser();
+
+        return $this->render('dashbord/achats.html.twig', [
+            'commandes' => $repo->findByCreatedBy($admin),
+        ]);
+    }
+
+    #[Route('/achats/new', name: 'dashbord_achat_new', methods: ['GET', 'POST'])]
+    public function newAchat(Request $request, EntityManagerInterface $em): Response
+    {
+        $commande = new CommandeAchat();
+        $commande->setDateFacture(new \DateTimeImmutable());
+
+        $form = $this->createForm(CommandeAchatType::class, $commande);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Users $admin */
+            $admin = $this->getUser();
+            $commande->setCreatedBy($admin);
+
+            $em->persist($commande);
+            $em->flush();
+
+            $this->addFlash('success', 'Commande achat ajoutée avec succès.');
+
+            return $this->redirectToRoute('dashbord_achats');
+        }
+
+        return $this->render('dashbord/achats_form.html.twig', [
+            'form' => $form,
+            'title' => 'Nouvelle commande fournisseur',
+        ]);
+    }
+
+    #[Route('/achats/{id}/facture', name: 'dashbord_achat_facture', methods: ['GET'])]
+    public function showAchatInvoice(CommandeAchat $commande): Response
+    {
+        $this->denyAccessUnlessCommandeOwner($commande->getCreatedBy());
+
+        $invoiceUrl = $this->generatePublicInvoiceUrl('achat', $commande->getId());
+
+        return $this->render('dashbord/order_invoice.html.twig', [
+            'commande' => $commande,
+            'type' => 'achat',
+            'invoiceUrl' => $invoiceUrl,
+            'publicPdfUrl' => $this->generatePublicInvoiceUrl('achat', $commande->getId(), true),
+            'qrCode' => $this->createQrCodeDataUri($invoiceUrl),
+        ]);
+    }
+
+    #[Route('/achats/{id}/facture/pdf', name: 'dashbord_achat_facture_pdf', methods: ['GET'])]
+    public function downloadAchatInvoice(CommandeAchat $commande): Response
+    {
+        $this->denyAccessUnlessCommandeOwner($commande->getCreatedBy());
+
+        return $this->downloadOrderInvoice(
+            $commande,
+            'achat',
+            'facture-achat-' . $commande->getId() . '.pdf'
+        );
+    }
+
+    #[Route('/ventes/{id}/facture', name: 'dashbord_vente_facture', methods: ['GET'])]
+    public function showVenteInvoice(CommandeVente $commande): Response
+    {
+        $this->denyAccessUnlessCommandeOwner($commande->getCreatedBy());
+
+        $invoiceUrl = $this->generatePublicInvoiceUrl('vente', $commande->getId());
+
+        return $this->render('dashbord/order_invoice.html.twig', [
+            'commande' => $commande,
+            'type' => 'vente',
+            'invoiceUrl' => $invoiceUrl,
+            'publicPdfUrl' => $this->generatePublicInvoiceUrl('vente', $commande->getId(), true),
+            'qrCode' => $this->createQrCodeDataUri($invoiceUrl),
+        ]);
+    }
+
+    #[Route('/ventes/{id}/facture/pdf', name: 'dashbord_vente_facture_pdf', methods: ['GET'])]
+    public function downloadVenteInvoice(CommandeVente $commande): Response
+    {
+        $this->denyAccessUnlessCommandeOwner($commande->getCreatedBy());
+
+        return $this->downloadOrderInvoice(
+            $commande,
+            'vente',
+            'facture-vente-' . $commande->getId() . '.pdf'
+        );
+    }
+
+    #[Route('/entrepots/{id}/edit', name: 'dashbord_entrepot_edit', methods: ['GET', 'POST'])]
+    public function editEntrepot(Request $request, Entrepot $entrepot, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessEntrepotOwner($entrepot);
+
+        $form = $this->createForm(EntrepotType::class, $entrepot);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+
+            $this->addFlash('success', 'Entrepôt modifié avec succès.');
+
+            return $this->redirectToRoute('dashbord_entrepots');
+        }
+
+        return $this->render('dashbord/entrepot_form.html.twig', [
+            'form' => $form,
+            'title' => 'Modifier ' . $entrepot->getNom(),
+        ]);
+    }
+
+    #[Route('/entrepots/{id}/delete', name: 'dashbord_entrepot_delete', methods: ['POST'])]
+    public function deleteEntrepot(Request $request, Entrepot $entrepot, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessEntrepotOwner($entrepot);
+
+        if ($this->isCsrfTokenValid('delete_entrepot' . $entrepot->getId(), $request->request->get('_token'))) {
+            $em->remove($entrepot);
+            $em->flush();
+
+            $this->addFlash('success', 'Entrepôt supprimé avec succès.');
+        }
+
+        return $this->redirectToRoute('dashbord_entrepots');
     }
 
     #[Route('/projets/new', name: 'dashbord_projet_new', methods: ['GET', 'POST'])]
@@ -507,6 +749,191 @@ public function newUser(
         return $this->redirectToRoute('dashbord_fournisseurs');
     }
 
+    #[Route('/produits', name: 'dashbord_produits', methods: ['GET', 'POST'])]
+    public function manageProduits(Request $request, ProductRepository $repo, EntityManagerInterface $em, CategoryRepository $categoryRepository): Response
+    {
+        $products = $repo->findBy([], ['id' => 'DESC']);
+        $totalMatieresPremieres = count(array_filter($products, static fn (Product $product): bool => $product->getAssetType() === 'matiere_premiere'));
+        $totalComposites = count(array_filter($products, static fn (Product $product): bool => $product->getAssetType() === 'composite_assemblage'));
+        $totalServices = count(array_filter($products, static fn (Product $product): bool => $product->getAssetType() === 'service'));
+
+        $category = new Category();
+        $categoryForm = $this->createForm(CategoryType::class, $category);
+        $categoryForm->handleRequest($request);
+
+        if ($categoryForm->isSubmitted() && $categoryForm->isValid()) {
+            $em->persist($category);
+            $em->flush();
+
+            $this->addFlash('success', 'Catégorie ajoutée avec succès.');
+
+            return $this->redirectToRoute('dashbord_produits');
+        }
+
+        return $this->render('dashbord/products.html.twig', [
+            'products' => $products,
+            'categories' => $categoryRepository->findBy([], ['name' => 'ASC']),
+            'categoryForm' => $categoryForm->createView(),
+            'totalProducts' => count($products),
+            'totalMatieresPremieres' => $totalMatieresPremieres,
+            'totalComposites' => $totalComposites,
+            'totalServices' => $totalServices,
+        ]);
+    }
+
+    #[Route('/produits/new', name: 'dashbord_produit_new', methods: ['GET', 'POST'])]
+    public function newProduit(Request $request, EntityManagerInterface $em): Response
+    {
+        $product = new Product();
+
+        $form = $this->createForm(ProductType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($product);
+            $em->flush();
+
+            $this->addFlash('success', 'Produit ajouté avec succès.');
+
+            return $this->redirectToRoute('dashbord_produits');
+        }
+
+        return $this->render('dashbord/product_form.html.twig', [
+            'form' => $form,
+            'title' => 'Ajouter un produit ou service',
+        ]);
+    }
+
+    #[Route('/produits/{id}/facture', name: 'dashbord_produit_facture', methods: ['GET'])]
+    public function showInvoice(Product $product, EntrepriseRepository $entrepriseRepository): Response
+    {
+        $entreprise = $entrepriseRepository->findOneBy(['createdBy' => $this->getUser()]);
+
+        return $this->render('dashbord/invoice.html.twig', [
+            'product' => $product,
+            'entreprise' => $entreprise,
+        ]);
+    }
+
+    #[Route('/produits/{id}/facture/pdf', name: 'dashbord_produit_facture_pdf', methods: ['GET'])]
+    public function downloadInvoice(Product $product, EntrepriseRepository $entrepriseRepository): Response
+    {
+        $entreprise = $entrepriseRepository->findOneBy(['createdBy' => $this->getUser()]);
+
+        $html = $this->renderView('dashbord/invoice_pdf.html.twig', [
+            'product' => $product,
+            'entreprise' => $entreprise,
+        ]);
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $qrCode = new QrCode(
+            data: $this->generateInvoiceUrl('dashbord_produit_facture', $product->getId()),
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 160,
+            margin: 0,
+            roundBlockSizeMode: RoundBlockSizeMode::Enlarge,
+            foregroundColor: new Color(0, 0, 0),
+            backgroundColor: new Color(255, 255, 255),
+        );
+
+        $writer = new SvgWriter();
+        $qrImage = $writer->write($qrCode)->getString();
+        $qrPath = sys_get_temp_dir() . '/invoice-' . $product->getId() . '.svg';
+        file_put_contents($qrPath, $qrImage);
+
+        $output = $dompdf->output();
+        $filename = 'facture-' . $product->getId() . '.pdf';
+
+        return new Response($output, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        ]);
+    }
+
+    private function downloadOrderInvoice(
+        CommandeAchat|CommandeVente $commande,
+        string $type,
+        string $filename
+    ): Response {
+        $invoiceUrl = $this->generatePublicInvoiceUrl($type, $commande->getId());
+        $qrCode = $this->createQrCodeDataUri($invoiceUrl);
+        $html = $this->renderView('dashbord/order_invoice_pdf.html.twig', [
+            'commande' => $commande,
+            'type' => $type,
+            'qrCode' => $qrCode,
+        ]);
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return new Response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    private function createQrCodeDataUri(string $url): string
+    {
+        $qrCode = new QrCode(
+            data: $url,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 180,
+            margin: 8,
+            roundBlockSizeMode: RoundBlockSizeMode::Enlarge,
+            foregroundColor: new Color(0, 0, 0),
+            backgroundColor: new Color(255, 255, 255),
+        );
+
+        $result = (new SvgWriter())->write($qrCode);
+
+        return 'data:image/svg+xml;base64,' . base64_encode($result->getString());
+    }
+
+    private function generatePublicInvoiceUrl(string $type, ?int $id, bool $pdf = false): string
+    {
+        $route = $pdf ? 'public_invoice_pdf' : 'public_invoice';
+        $path = $this->generateUrl($route, [
+            'type' => $type,
+            'id' => $id,
+            'token' => $this->createInvoiceToken($type, $id),
+        ], UrlGeneratorInterface::ABSOLUTE_PATH);
+        $publicUrl = trim((string) $this->getParameter('app.public_url'));
+
+        return $publicUrl === '' ? $this->generateUrl($route, [
+            'type' => $type,
+            'id' => $id,
+            'token' => $this->createInvoiceToken($type, $id),
+        ], UrlGeneratorInterface::ABSOLUTE_URL) : rtrim($publicUrl, '/') . $path;
+    }
+
+    private function createInvoiceToken(string $type, ?int $id): string
+    {
+        return hash_hmac('sha256', $type . ':' . $id, (string) $this->getParameter('kernel.secret'));
+    }
+
+    private function denyAccessUnlessCommandeOwner(?Users $owner): void
+    {
+        /** @var Users|null $current */
+        $current = $this->getUser();
+
+        if (!$current instanceof Users || !$owner instanceof Users || $owner->getId() !== $current->getId()) {
+            throw $this->createAccessDeniedException("Vous n'avez pas accès à cette commande.");
+        }
+    }
+
     private function denyAccessUnlessEmployeOwner(Employe $employe): void
     {
         /** @var Users $current */
@@ -534,6 +961,16 @@ public function newUser(
 
         if ($fournisseur->getCreatedBy()?->getId() !== $current->getId()) {
             throw $this->createAccessDeniedException("Vous n'avez pas accès à ce fournisseur.");
+        }
+    }
+
+    private function denyAccessUnlessEntrepotOwner(Entrepot $entrepot): void
+    {
+        /** @var Users $current */
+        $current = $this->getUser();
+
+        if ($entrepot->getCreatedBy()?->getId() !== $current->getId()) {
+            throw $this->createAccessDeniedException("Vous n'avez pas accès à cet entrepôt.");
         }
     }
 }
