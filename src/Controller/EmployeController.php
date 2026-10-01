@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Employe;
+use App\Entity\Users;
 use App\Form\EmployeType;
 use App\Repository\EmployeRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,8 +20,13 @@ class EmployeController extends AbstractController
     #[Route('/', name: 'employe_index', methods: ['GET'])]
     public function index(EmployeRepository $repo): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof Users) {
+            throw $this->createAccessDeniedException();
+        }
+
         return $this->render('employe/index.html.twig', [
-            'employes' => $repo->findAll(),
+            'employes' => $repo->findByCreatedBy($user),
         ]);
     }
 
@@ -54,6 +60,8 @@ class EmployeController extends AbstractController
         Employe $employe,
         EntityManagerInterface $em
     ): Response {
+        $this->denyAccessUnlessGranted('TENANT_ACCESS', $employe);
+
         $form = $this->createForm(EmployeType::class, $employe);
         $form->handleRequest($request);
 
@@ -76,6 +84,8 @@ class EmployeController extends AbstractController
         Employe $employe,
         EntityManagerInterface $em
     ): Response {
+        $this->denyAccessUnlessGranted('TENANT_ACCESS', $employe);
+
         if ($this->isCsrfTokenValid('delete' . $employe->getId(), $request->request->get('_token'))) {
             $em->remove($employe);
             $em->flush();
@@ -88,6 +98,8 @@ class EmployeController extends AbstractController
     #[Route('/{id}', name: 'employe_show', methods: ['GET'])]
     public function show(Employe $employe): Response
     {
+        $this->denyAccessUnlessGranted('TENANT_ACCESS', $employe);
+
         return $this->render('employe/show.html.twig', [
             'employe' => $employe,
         ]);

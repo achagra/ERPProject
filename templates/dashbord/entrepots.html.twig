@@ -1,7 +1,7 @@
 {% extends 'dashbord/base.html.twig' %}
 
-{% block title %}Gestion des Entrepôts - ERP{% endblock %}
-{% block page_title %}Gestion des Entrepôts{% endblock %}
+{% block title %}{{ 'nav.warehouses'|trans }} - ERP{% endblock %}
+{% block page_title %}{{ 'nav.warehouses'|trans }}{% endblock %}
 {% block icon %}boxes{% endblock %}
 
 {% block content %}
@@ -13,7 +13,7 @@
                     <i class="bi bi-box-seam"></i>
                 </div>
                 <div class="stat-value">{{ totalEntrepots }}</div>
-                <div class="stat-label">Total entrepôts</div>
+                <div class="stat-label">{{ 'pages.total_warehouses'|trans }}</div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -22,7 +22,7 @@
                     <i class="bi bi-check-circle"></i>
                 </div>
                 <div class="stat-value">{{ totalActifs }}</div>
-                <div class="stat-label">Entrepôts actifs</div>
+                <div class="stat-label">{{ 'pages.active_warehouses'|trans }}</div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -31,7 +31,7 @@
                     <i class="bi bi-x-circle"></i>
                 </div>
                 <div class="stat-value">{{ totalInactifs }}</div>
-                <div class="stat-label">Entrepôts non actifs</div>
+                <div class="stat-label">{{ 'pages.inactive_warehouses'|trans }}</div>
             </div>
         </div>
     </div>
@@ -40,7 +40,7 @@
         <div class="col-12">
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <a href="{{ path('dashbord_entrepot_new') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Ajouter un entrepôt
+                    <i class="bi bi-plus-circle me-2"></i>{{ 'pages.add_warehouse'|trans }}
                 </a>
             </div>
         </div>
@@ -50,7 +50,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>Liste des entrepôts</h5>
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>{{ 'pages.list_warehouses'|trans }}</h5>
                 </div>
                 <div class="card-body p-0">
                     {% if entrepots is not empty %}
@@ -58,9 +58,7 @@
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Nom</th>
-                                        <th>Statut</th>
-                                        <th>Actions</th>
+                                        <th>{{ 'pages.name'|trans }}</th><th>{{ 'common.status'|trans }}</th><th>{{ 'common.actions'|trans }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,17 +67,17 @@
                                             <td><strong>{{ entrepot.nom }}</strong></td>
                                             <td>
                                                 {% if entrepot.isActive %}
-                                                    <span class="badge badge-success">Actif</span>
+                                                    <span class="badge badge-success">{{ 'common.active'|trans }}</span>
                                                 {% else %}
-                                                    <span class="badge badge-danger">Non actif</span>
+                                                    <span class="badge badge-danger">{{ 'common.inactive'|trans }}</span>
                                                 {% endif %}
                                             </td>
                                             <td>
                                                 <div style="display: flex; gap: 0.5rem;">
-                                                    <a href="{{ path('dashbord_entrepot_edit', {id: entrepot.id}) }}" class="btn btn-sm" style="background: #fef3c7; color: #92400e; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" title="Modifier">
+                                                    <a href="{{ path('dashbord_entrepot_edit', {id: entrepot.id}) }}" class="btn btn-sm" style="background: #fef3c7; color: #92400e; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" title="{{ 'common.edit'|trans }}">
                                                         <i class="bi bi-pencil"></i>
                                                     </a>
-                                                    <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" data-bs-toggle="modal" data-bs-target="#deleteEntrepotModal{{ entrepot.id }}" title="Supprimer">
+                                                    <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" data-bs-toggle="modal" data-bs-target="#deleteEntrepotModal{{ entrepot.id }}" title="{{ 'common.delete'|trans }}">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
@@ -88,18 +86,18 @@
                                                     <div class="modal-dialog">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression</h5>
+                                                                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>{{ 'common.confirm_delete'|trans }}</h5>
                                                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                             </div>
                                                             <div class="modal-body">
                                                                 <p>Supprimer l'entrepôt <strong>{{ entrepot.nom }}</strong> ?</p>
                                                             </div>
                                                             <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'common.cancel'|trans }}</button>
                                                                 <form method="POST" action="{{ path('dashbord_entrepot_delete', {id: entrepot.id}) }}" style="display: inline;">
                                                                     <input type="hidden" name="_token" value="{{ csrf_token('delete_entrepot' ~ entrepot.id) }}">
                                                                     <button type="submit" class="btn btn-danger">
-                                                                        <i class="bi bi-trash me-2"></i>Supprimer
+                                                                        <i class="bi bi-trash me-2"></i>{{ 'common.delete'|trans }}
                                                                     </button>
                                                                 </form>
                                                             </div>
@@ -115,10 +113,10 @@
                     {% else %}
                         <div class="empty-state">
                             <i class="bi bi-inbox"></i>
-                            <h5>Aucun entrepôt trouvé</h5>
-                            <p class="text-muted">Commencez par ajouter votre premier entrepôt</p>
+                            <h5>{{ 'pages.no_warehouse'|trans }}</h5>
+                            <p class="text-muted">{{ 'pages.start_warehouse'|trans }}</p>
                             <a href="{{ path('dashbord_entrepot_new') }}" class="btn btn-primary mt-3">
-                                <i class="bi bi-plus-circle me-2"></i>Ajouter un entrepôt
+                                <i class="bi bi-plus-circle me-2"></i>{{ 'pages.add_warehouse'|trans }}
                             </a>
                         </div>
                     {% endif %}

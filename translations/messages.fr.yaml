@@ -1,0 +1,96 @@
+app:
+    refresh: Actualiser
+    language: Langue
+    logout: Déconnexion
+    profile: Mon profil
+    settings: Paramètres
+nav:
+    company_profile: Profil de l'entreprise
+    projects: Les projets
+    warehouses: Entrepôts
+    new_employee: Nouvel employé
+    employees: Liste des employés
+    audit: Journal d'audit
+    clients: Clients
+    suppliers: Fournisseurs
+    products: Produits et services
+    documents: Documents
+    data: Carte de données
+    users: Utilisateurs
+    purchases: Achats
+    sales: Ventes
+dashboard:
+    title: Tableau de bord entreprise
+    welcome: Bienvenue dans l'espace entreprise
+    period: Période
+    days_30: 30 jours
+    days_90: 90 jours
+    days_365: 365 jours
+    employees: Employés
+    individual_clients: Clients particuliers
+    business_clients: Clients professionnels
+    individual_suppliers: Fournisseurs particuliers
+    business_suppliers: Fournisseurs professionnels
+    period_purchases: Achats sur la période
+    period_sales: Ventes sur la période
+    monthly_activity: Activité mensuelle
+    purchases: Achats
+    sales: Ventes
+common:
+    back: Retour
+    filter: Filtrer
+    all: Toutes
+    no_activity: Aucune activité enregistrée.
+    save: Enregistrer
+    cancel: Annuler
+    edit: Modifier
+    delete: Supprimer
+    view: Voir
+    actions: Actions
+    confirm_delete: Confirmer la suppression
+    irreversible: Cette action est irréversible.
+    no_results: Aucun résultat trouvé.
+    date: Date
+    notes: Notes / conditions
+    warehouse: Entrepôt
+    client: Client
+    supplier: Fournisseur
+    employee: Employé
+    product: Produit
+    status: Statut
+    active: Actif
+    inactive: Inactif
+pages:
+    total_clients: Total clients
+    individual_clients: Clients particuliers
+    business_clients: Clients professionnels
+    total_suppliers: Total fournisseurs
+    individual_suppliers: Fournisseurs particuliers
+    business_suppliers: Fournisseurs professionnels
+    total_warehouses: Total entrepôts
+    active_warehouses: Entrepôts actifs
+    inactive_warehouses: Entrepôts non actifs
+    add_client: Ajouter un client
+    add_supplier: Ajouter un fournisseur
+    add_employee: Ajouter un employé
+    add_warehouse: Ajouter un entrepôt
+    list_clients: Liste des clients
+    list_suppliers: Liste des fournisseurs
+    list_employees: Liste des employés
+    list_warehouses: Liste des entrepôts
+    no_client: Aucun client trouvé
+    no_supplier: Aucun fournisseur trouvé
+    no_employee: Aucun employé trouvé
+    no_warehouse: Aucun entrepôt trouvé
+    start_client: Ajoutez votre premier client
+    start_supplier: Ajoutez votre premier fournisseur
+    start_employee: Commencez par ajouter votre premier employé
+    start_warehouse: Commencez par ajouter votre premier entrepôt
+    full_name: Nom complet
+    type: Type
+    company: Entreprise
+    email: Email
+    phone: Téléphone
+    country_region: Pays / Région
+    department: Département
+    name: Nom

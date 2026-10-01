@@ -1,0 +1,96 @@
+app:
+    refresh: Refresh
+    language: Language
+    logout: Log out
+    profile: My profile
+    settings: Settings
+nav:
+    company_profile: Company profile
+    projects: Projects
+    warehouses: Warehouses
+    new_employee: New employee
+    employees: Employee list
+    audit: Audit log
+    clients: Clients
+    suppliers: Suppliers
+    products: Products and services
+    documents: Documents
+    data: Data center
+    users: Users
+    purchases: Purchases
+    sales: Sales
+dashboard:
+    title: Company dashboard
+    welcome: Welcome to the company area
+    period: Period
+    days_30: 30 days
+    days_90: 90 days
+    days_365: 365 days
+    employees: Employees
+    individual_clients: Individual clients
+    business_clients: Business clients
+    individual_suppliers: Individual suppliers
+    business_suppliers: Business suppliers
+    period_purchases: Purchases in period
+    period_sales: Sales in period
+    monthly_activity: Monthly activity
+    purchases: Purchases
+    sales: Sales
+common:
+    back: Back
+    filter: Filter
+    all: All
+    no_activity: No activity recorded.
+    save: Save
+    cancel: Cancel
+    edit: Edit
+    delete: Delete
+    view: View
+    actions: Actions
+    confirm_delete: Confirm deletion
+    irreversible: This action cannot be undone.
+    no_results: No results found.
+    date: Date
+    notes: Notes / terms
+    warehouse: Warehouse
+    client: Client
+    supplier: Supplier
+    employee: Employee
+    product: Product
+    status: Status
+    active: Active
+    inactive: Inactive
+pages:
+    total_clients: Total clients
+    individual_clients: Individual clients
+    business_clients: Business clients
+    total_suppliers: Total suppliers
+    individual_suppliers: Individual suppliers
+    business_suppliers: Business suppliers
+    total_warehouses: Total warehouses
+    active_warehouses: Active warehouses
+    inactive_warehouses: Inactive warehouses
+    add_client: Add client
+    add_supplier: Add supplier
+    add_employee: Add employee
+    add_warehouse: Add warehouse
+    list_clients: Client list
+    list_suppliers: Supplier list
+    list_employees: Employee list
+    list_warehouses: Warehouse list
+    no_client: No clients found
+    no_supplier: No suppliers found
+    no_employee: No employees found
+    no_warehouse: No warehouses found
+    start_client: Add your first client
+    start_supplier: Add your first supplier
+    start_employee: Start by adding your first employee
+    start_warehouse: Start by adding your first warehouse
+    full_name: Full name
+    type: Type
+    company: Company
+    email: Email
+    phone: Phone
+    country_region: Country / Region
+    department: Department
+    name: Name

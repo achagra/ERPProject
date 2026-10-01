@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app.request.locale }}" dir="{{ app.request.locale == 'ar' ? 'rtl' : 'ltr' }}" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,6 +19,20 @@
             --dark: #1f2937;
             --border: #e5e7eb;
             --text: #374151;
+            --surface: #ffffff;
+            --surface-muted: #f9fafb;
+            --text-muted: #6b7280;
+        }
+
+        html[data-theme="dark"] {
+            color-scheme: dark;
+            --light: #111827;
+            --dark: #030712;
+            --border: #374151;
+            --text: #e5e7eb;
+            --surface: #1f2937;
+            --surface-muted: #111827;
+            --text-muted: #9ca3af;
         }
 
         * {
@@ -29,10 +43,40 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--surface-muted);
             min-height: 100vh;
             color: var(--text);
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
+
+        .card, .modal-content, .dropdown-menu, .table {
+            background-color: var(--surface);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .table > :not(caption) > * > * {
+            background-color: var(--surface);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .form-control, .form-select, .input-group-text {
+            background-color: var(--surface);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .text-muted { color: var(--text-muted) !important; }
+
+        html[data-theme="dark"] .btn-light {
+            background-color: #374151;
+            color: #f9fafb;
+            border-color: #4b5563;
+        }
+
+        html[data-theme="dark"] .dropdown-item { color: var(--text); }
+        html[data-theme="dark"] .dropdown-item:hover { background-color: #374151; }
 
         /* Layout */
         .dashboard-wrapper {
@@ -611,19 +655,22 @@
                                             <div class="collapse {% if entrepriseSectionOpen %}show{% endif %}" id="sidebarParametreMenu">
                                                 <div class="sidebar-submenu">
                                                     <a href="{{ path('dashbord_entreprise_profile') }}" class="{% if currentRoute == 'dashbord_entreprise_profile' %}active{% endif %}">
-                                                        <i class="bi bi-building"></i> Profil de l'entreprise
+                                                        <i class="bi bi-building"></i> {{ 'nav.company_profile'|trans }}
                                                     </a>
                                                     <a href="{{ path('dashbord_projets') }}" class="{% if currentRoute == 'dashbord_projets' %}active{% endif %}">
-                                                        <i class="bi bi-kanban-fill"></i> Les projets
+                                                        <i class="bi bi-kanban-fill"></i> {{ 'nav.projects'|trans }}
                                                     </a>
                                                     <a href="{{ path('dashbord_entrepots') }}" class="{% if currentRoute == 'dashbord_entrepots' %}active{% endif %}">
-                                                        <i class="bi bi-boxes"></i> Entrepôts
+                                                        <i class="bi bi-boxes"></i> {{ 'nav.warehouses'|trans }}
                                                     </a>
                                                     <a href="{{ path('dashbord_employe_new') }}" class="{% if currentRoute == 'dashbord_employe_new' %}active{% endif %}">
-                                                        <i class="bi bi-person-plus-fill"></i> Nouvel employé
+                                                        <i class="bi bi-person-plus-fill"></i> {{ 'nav.new_employee'|trans }}
                                                     </a>
                                                     <a href="{{ path('dashbord_employes') }}" class="{% if currentRoute == 'dashbord_employes' %}active{% endif %}">
-                                                        <i class="bi bi-people-fill"></i> Liste des employés
+                                                        <i class="bi bi-people-fill"></i> {{ 'nav.employees'|trans }}
+                                                    </a>
+                                                    <a href="{{ path('dashbord_audit') }}" class="{% if currentRoute starts with 'dashbord_audit' %}active{% endif %}">
+                                                        <i class="bi bi-journal-text"></i> {{ 'nav.audit'|trans }}
                                                     </a>
                                                 </div>
                                             </div>
@@ -636,7 +683,7 @@
                                 <button class="sidebar-group-toggle {% if not dataSectionOpen %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarDataMenu" aria-expanded="{% if dataSectionOpen %}true{% else %}false{% endif %}" aria-controls="sidebarDataMenu">
                                     <span class="sidebar-group-title">
                                         <i class="bi bi-database"></i>
-                                        Carte de données
+                                    {{ 'nav.data'|trans }}
                                     </span>
                                     <i class="bi bi-chevron-down sidebar-group-chevron"></i>
                                 </button>
@@ -645,13 +692,13 @@
                                     <div class="sidebar-group-panel">
                                         <div class="sidebar-submenu">
                                             <a href="{{ path('dashbord_clients') }}" class="{% if currentRoute starts with 'dashbord_client' %}active{% endif %}">
-                                                <i class="bi bi-person-lines-fill"></i> Clients
+                                                <i class="bi bi-person-lines-fill"></i> {{ 'nav.clients'|trans }}
                                             </a>
                                             <a href="{{ path('dashbord_fournisseurs') }}" class="{% if currentRoute starts with 'dashbord_fournisseur' %}active{% endif %}">
-                                                <i class="bi bi-truck"></i> Fournisseurs
+                                                <i class="bi bi-truck"></i> {{ 'nav.suppliers'|trans }}
                                             </a>
                                             <a href="{{ path('dashbord_produits') }}" class="{% if currentRoute starts with 'dashbord_produit' %}active{% endif %}">
-                                                <i class="bi bi-box-seam"></i> Produits et services
+                                                <i class="bi bi-box-seam"></i> {{ 'nav.products'|trans }}
                                             </a>
                                         </div>
                                     </div>
@@ -666,7 +713,7 @@
                                 <button class="sidebar-group-toggle {% if not documentSectionOpen %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarDocumentMenu" aria-expanded="{% if documentSectionOpen %}true{% else %}false{% endif %}" aria-controls="sidebarDocumentMenu">
                                     <span class="sidebar-group-title">
                                         <i class="bi bi-folder2-open"></i>
-                                        Documents
+                                        {{ 'nav.documents'|trans }}
                                     </span>
                                     <i class="bi bi-chevron-down sidebar-group-chevron"></i>
                                 </button>
@@ -711,18 +758,27 @@
                     {% block page_title %}Dashboard{% endblock %}
                 </h1>
                 <div class="top-bar-actions">
-                    <button class="btn btn-light" title="Actualiser">
+                    <label class="visually-hidden" for="localeSelector">{{ 'app.language'|trans }}</label>
+                    <select id="localeSelector" class="form-select form-select-sm" aria-label="{{ 'app.language'|trans }}" onchange="window.location.href = this.value">
+                        <option value="{{ path('app_locale_switch', {locale: 'fr'}) }}" {% if app.request.locale == 'fr' %}selected{% endif %}>FR</option>
+                        <option value="{{ path('app_locale_switch', {locale: 'en'}) }}" {% if app.request.locale == 'en' %}selected{% endif %}>EN</option>
+                        <option value="{{ path('app_locale_switch', {locale: 'ar'}) }}" {% if app.request.locale == 'ar' %}selected{% endif %}>AR</option>
+                    </select>
+                    <button class="btn btn-light" title="{{ 'app.refresh'|trans }}">
                         <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                    <button class="btn btn-light" id="themeToggle" type="button" title="Changer de thème" aria-label="Changer de thème">
+                        <i class="bi bi-moon-stars"></i>
                     </button>
                     <div class="dropdown">
                         <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Mon profil</a></li>
-                            <li><a class="dropdown-item" href="#">Paramètres</a></li>
+                            <li><a class="dropdown-item" href="#">{{ 'app.profile'|trans }}</a></li>
+                            <li><a class="dropdown-item" href="#">{{ 'app.settings'|trans }}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ path('app_logout') }}">Déconnexion</a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_logout') }}">{{ 'app.logout'|trans }}</a></li>
                         </ul>
                     </div>
                 </div>
@@ -751,6 +807,27 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const toggle = document.getElementById('themeToggle');
+            const storedTheme = localStorage.getItem('erp-theme');
+            const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const applyTheme = (theme) => {
+                root.dataset.theme = theme;
+                if (toggle) {
+                    toggle.querySelector('i').className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+                }
+            };
+
+            applyTheme(storedTheme || preferredTheme);
+            toggle?.addEventListener('click', () => {
+                const theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('erp-theme', theme);
+                applyTheme(theme);
+            });
+        })();
+    </script>
     {% block javascripts %}{% endblock %}
 </body>
 </html>

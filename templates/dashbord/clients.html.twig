@@ -1,7 +1,7 @@
 {% extends 'dashbord/base.html.twig' %}
 
-{% block title %}Gestion des Clients - ERP{% endblock %}
-{% block page_title %}Gestion des Clients{% endblock %}
+{% block title %}{{ 'nav.clients'|trans }} - ERP{% endblock %}
+{% block page_title %}{{ 'nav.clients'|trans }}{% endblock %}
 {% block icon %}person-lines-fill{% endblock %}
 
 {% block content %}
@@ -13,7 +13,7 @@
                     <i class="bi bi-people"></i>
                 </div>
                 <div class="stat-value">{{ clients|length }}</div>
-                <div class="stat-label">Total clients</div>
+                <div class="stat-label">{{ 'pages.total_clients'|trans }}</div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -22,7 +22,7 @@
                     <i class="bi bi-person"></i>
                 </div>
                 <div class="stat-value">{{ totalParticuliers }}</div>
-                <div class="stat-label">Clients particuliers</div>
+                <div class="stat-label">{{ 'pages.individual_clients'|trans }}</div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -31,7 +31,7 @@
                     <i class="bi bi-building"></i>
                 </div>
                 <div class="stat-value">{{ totalProfessionnels }}</div>
-                <div class="stat-label">Clients professionnels</div>
+                <div class="stat-label">{{ 'pages.business_clients'|trans }}</div>
             </div>
         </div>
     </div>
@@ -40,7 +40,7 @@
         <div class="col-12">
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
                 <a href="{{ path('dashbord_client_new') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Ajouter un client
+                    <i class="bi bi-plus-circle me-2"></i>{{ 'pages.add_client'|trans }}
                 </a>
             </div>
         </div>
@@ -50,7 +50,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>Liste des clients</h5>
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>{{ 'pages.list_clients'|trans }}</h5>
                 </div>
                 <div class="card-body p-0">
                     {% if clients is not empty %}
@@ -58,13 +58,7 @@
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Nom complet</th>
-                                        <th>Type</th>
-                                        <th>Entreprise</th>
-                                        <th>Email</th>
-                                        <th>Téléphone</th>
-                                        <th>Pays / Région</th>
-                                        <th>Actions</th>
+                                        <th>{{ 'pages.full_name'|trans }}</th><th>{{ 'pages.type'|trans }}</th><th>{{ 'pages.company'|trans }}</th><th>{{ 'pages.email'|trans }}</th><th>{{ 'pages.phone'|trans }}</th><th>{{ 'pages.country_region'|trans }}</th><th>{{ 'common.actions'|trans }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -73,7 +67,7 @@
                                         <td>{{ client.civilite }} {{ client.nomComplet }}</td>
                                         <td>
                                             <span class="badge" style="background: #dbeafe; color: #1e40af;">
-                                                {{ client.type == 'particulier' ? 'Particulier' : 'Professionnel' }}
+                                                {{ client.type == 'particulier' ? 'pages.individual_clients'|trans : 'pages.business_clients'|trans }}
                                             </span>
                                         </td>
                                         <td>{{ client.nomEntreprise ?: '-' }}</td>
@@ -82,10 +76,10 @@
                                         <td>{{ client.pays }} / {{ client.region }}</td>
                                         <td>
                                             <div style="display: flex; gap: 0.5rem;">
-                                                <a href="{{ path('dashbord_client_edit', {id: client.id}) }}" class="btn btn-sm" style="background: #fef3c7; color: #92400e; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" title="Modifier">
+                                                <a href="{{ path('dashbord_client_edit', {id: client.id}) }}" class="btn btn-sm" style="background: #fef3c7; color: #92400e; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" title="{{ 'common.edit'|trans }}">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" data-bs-toggle="modal" data-bs-target="#deleteClientModal{{ client.id }}" title="Supprimer">
+                                                <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" data-bs-toggle="modal" data-bs-target="#deleteClientModal{{ client.id }}" title="{{ 'common.delete'|trans }}">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
@@ -94,18 +88,18 @@
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression</h5>
+                                                            <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>{{ 'common.confirm_delete'|trans }}</h5>
                                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                         </div>
                                                         <div class="modal-body">
                                                             <p>Supprimer le client <strong>{{ client.civilite }} {{ client.nomComplet }}</strong> ?</p>
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'common.cancel'|trans }}</button>
                                                             <form method="POST" action="{{ path('dashbord_client_delete', {id: client.id}) }}" style="display: inline;">
                                                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_client' ~ client.id) }}">
                                                                 <button type="submit" class="btn btn-danger">
-                                                                    <i class="bi bi-trash me-2"></i>Supprimer
+                                                                    <i class="bi bi-trash me-2"></i>{{ 'common.delete'|trans }}
                                                                 </button>
                                                             </form>
                                                         </div>
@@ -121,10 +115,10 @@
                     {% else %}
                         <div class="empty-state">
                             <i class="bi bi-inbox"></i>
-                            <h5>Aucun client trouvé</h5>
-                            <p class="text-muted">Ajoutez votre premier client</p>
+                            <h5>{{ 'pages.no_client'|trans }}</h5>
+                            <p class="text-muted">{{ 'pages.start_client'|trans }}</p>
                             <a href="{{ path('dashbord_client_new') }}" class="btn btn-primary mt-3">
-                                <i class="bi bi-plus-circle me-2"></i>Ajouter un client
+                                <i class="bi bi-plus-circle me-2"></i>{{ 'pages.add_client'|trans }}
                             </a>
                         </div>
                     {% endif %}

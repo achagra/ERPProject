@@ -1,0 +1,96 @@
+app:
+    refresh: تحديث
+    language: اللغة
+    logout: تسجيل الخروج
+    profile: ملفي الشخصي
+    settings: الإعدادات
+nav:
+    company_profile: ملف الشركة
+    projects: المشاريع
+    warehouses: المستودعات
+    new_employee: موظف جديد
+    employees: قائمة الموظفين
+    audit: سجل التدقيق
+    clients: العملاء
+    suppliers: الموردون
+    products: المنتجات والخدمات
+    documents: المستندات
+    data: البيانات
+    users: المستخدمون
+    purchases: المشتريات
+    sales: المبيعات
+dashboard:
+    title: لوحة تحكم الشركة
+    welcome: مرحباً بكم في مساحة الشركة
+    period: الفترة
+    days_30: 30 يوماً
+    days_90: 90 يوماً
+    days_365: 365 يوماً
+    employees: الموظفون
+    individual_clients: العملاء الأفراد
+    business_clients: العملاء المهنيون
+    individual_suppliers: الموردون الأفراد
+    business_suppliers: الموردون المهنيون
+    period_purchases: المشتريات خلال الفترة
+    period_sales: المبيعات خلال الفترة
+    monthly_activity: النشاط الشهري
+    purchases: المشتريات
+    sales: المبيعات
+common:
+    back: رجوع
+    filter: تصفية
+    all: الكل
+    no_activity: لا توجد أنشطة مسجلة.
+    save: حفظ
+    cancel: إلغاء
+    edit: تعديل
+    delete: حذف
+    view: عرض
+    actions: الإجراءات
+    confirm_delete: تأكيد الحذف
+    irreversible: لا يمكن التراجع عن هذا الإجراء.
+    no_results: لم يتم العثور على نتائج.
+    date: التاريخ
+    notes: الملاحظات والشروط
+    warehouse: المستودع
+    client: العميل
+    supplier: المورد
+    employee: الموظف
+    product: المنتج
+    status: الحالة
+    active: نشط
+    inactive: غير نشط
+pages:
+    total_clients: إجمالي العملاء
+    individual_clients: العملاء الأفراد
+    business_clients: العملاء المهنيون
+    total_suppliers: إجمالي الموردين
+    individual_suppliers: الموردون الأفراد
+    business_suppliers: الموردون المهنيون
+    total_warehouses: إجمالي المستودعات
+    active_warehouses: المستودعات النشطة
+    inactive_warehouses: المستودعات غير النشطة
+    add_client: إضافة عميل
+    add_supplier: إضافة مورد
+    add_employee: إضافة موظف
+    add_warehouse: إضافة مستودع
+    list_clients: قائمة العملاء
+    list_suppliers: قائمة الموردين
+    list_employees: قائمة الموظفين
+    list_warehouses: قائمة المستودعات
+    no_client: لم يتم العثور على عملاء
+    no_supplier: لم يتم العثور على موردين
+    no_employee: لم يتم العثور على موظفين
+    no_warehouse: لم يتم العثور على مستودعات
+    start_client: أضف عميلك الأول
+    start_supplier: أضف مورّدك الأول
+    start_employee: ابدأ بإضافة أول موظف
+    start_warehouse: ابدأ بإضافة أول مستودع
+    full_name: الاسم الكامل
+    type: النوع
+    company: الشركة
+    email: البريد الإلكتروني
+    phone: الهاتف
+    country_region: البلد / المنطقة
+    department: القسم
+    name: الاسم

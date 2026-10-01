@@ -1,7 +1,7 @@
 {% extends 'dashbord/base.html.twig' %}
 
-{% block title %}Commandes Achats - ERP{% endblock %}
-{% block page_title %}Commandes Achats{% endblock %}
+{% block title %}{{ 'nav.purchases'|trans }} - ERP{% endblock %}
+{% block page_title %}{{ 'nav.purchases'|trans }}{% endblock %}
 {% block icon %}bag-check{% endblock %}
 
 {% block content %}
@@ -36,11 +36,11 @@
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Fournisseur</th>
-                                        <th>Date facture</th>
-                                        <th>Entrepôt</th>
-                                        <th>Notes / conditions</th>
-                                        <th class="text-end">Facture</th>
+                                        <th>{{ 'common.supplier'|trans }}</th>
+                                        <th>{{ 'common.date'|trans }}</th>
+                                        <th>{{ 'common.warehouse'|trans }}</th>
+                                        <th>{{ 'common.notes'|trans }}</th>
+                                        <th class="text-end">{{ 'common.view'|trans }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>

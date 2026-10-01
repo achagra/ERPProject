@@ -60,9 +60,12 @@ class DashbordController extends AbstractController
 {
     #[Route('/', name: 'dashbord_index', methods: ['GET'])]
     public function index(
+        Request $request,
         EmployeRepository $employeRepo,
         ClientRepository $clientRepo,
-        FournisseurRepository $fournisseurRepo
+        FournisseurRepository $fournisseurRepo,
+        CommandeAchatRepository $achatRepo,
+        CommandeVenteRepository $venteRepo
     ): Response {
         if ($this->isGranted('ROLE_SUPER_ADMIN')) {
             return $this->redirectToRoute('dashbord_users');
@@ -73,6 +76,26 @@ class DashbordController extends AbstractController
         $employes = $employeRepo->findByCreatedBy($admin);
         $clients = $clientRepo->findBy(['createdBy' => $admin]);
         $fournisseurs = $fournisseurRepo->findBy(['createdBy' => $admin]);
+        $period = in_array($request->query->getInt('period', 90), [30, 90, 365], true) ? $request->query->getInt('period', 90) : 90;
+        $from = new \DateTimeImmutable(sprintf('-%d days', $period));
+        $achats = array_filter($achatRepo->findByCreatedBy($admin), static fn (CommandeAchat $commande): bool => $commande->getDateFacture() >= $from);
+        $ventes = array_filter($venteRepo->findByCreatedBy($admin), static fn (CommandeVente $commande): bool => $commande->getDateCommande() >= $from);
+        $months = [];
+        $monthCursor = new \DateTimeImmutable('first day of this month');
+        for ($index = 5; $index >= 0; --$index) {
+            $month = $monthCursor->modify(sprintf('-%d months', $index));
+            $months[$month->format('Y-m')] = $month->format('m/Y');
+        }
+        $achatChart = array_fill_keys(array_keys($months), 0);
+        $venteChart = array_fill_keys(array_keys($months), 0);
+        foreach ($achats as $commande) {
+            $key = $commande->getDateFacture()?->format('Y-m');
+            if (isset($achatChart[$key])) { ++$achatChart[$key]; }
+        }
+        foreach ($ventes as $commande) {
+            $key = $commande->getDateCommande()?->format('Y-m');
+            if (isset($venteChart[$key])) { ++$venteChart[$key]; }
+        }
 
         $totalClientsParticuliers = count(array_filter($clients, static fn (Client $client): bool => $client->getType() === 'particulier'));
         $totalClientsProfessionnels = count(array_filter($clients, static fn (Client $client): bool => $client->getType() === 'entreprise'));
@@ -85,6 +108,12 @@ class DashbordController extends AbstractController
             'totalClientsProfessionnels' => $totalClientsProfessionnels,
             'totalFournisseursParticuliers' => $totalFournisseursParticuliers,
             'totalFournisseursProfessionnels' => $totalFournisseursProfessionnels,
+            'period' => $period,
+            'periodAchats' => count($achats),
+            'periodVentes' => count($ventes),
+            'chartLabels' => array_values($months),
+            'chartAchats' => array_values($achatChart),
+            'chartVentes' => array_values($venteChart),
         ]);
     }
 
@@ -219,7 +248,7 @@ class DashbordController extends AbstractController
         $commande = new CommandeVente();
         $commande->setDateCommande(new \DateTimeImmutable());
 
-        $form = $this->createForm(CommandeVenteType::class, $commande);
+        $form = $this->createForm(CommandeVenteType::class, $commande, ['owner' => $this->getUser()]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -258,7 +287,7 @@ class DashbordController extends AbstractController
         $commande = new CommandeAchat();
         $commande->setDateFacture(new \DateTimeImmutable());
 
-        $form = $this->createForm(CommandeAchatType::class, $commande);
+        $form = $this->createForm(CommandeAchatType::class, $commande, ['owner' => $this->getUser()]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -404,11 +433,12 @@ class DashbordController extends AbstractController
     // ================= USERS (SUPER_ADMIN uniquement) =================
     #[Route('/users', name: 'dashbord_users', methods: ['GET'])]
     #[IsGranted('ROLE_SUPER_ADMIN')]
-    public function manageUsers(UsersRepository $repo): Response
+    public function manageUsers(UsersRepository $repo, EntrepriseRepository $entrepriseRepository): Response
     {
         return $this->render('dashbord/users.html.twig', [
             'users'      => $repo->findAll(),
             'totalUsers' => count($repo->findAll()),
+            'totalEntreprises' => $entrepriseRepository->count([]),
         ]);
     }
 
@@ -786,7 +816,7 @@ public function newUser(
     {
         $product = new Product();
 
-        $form = $this->createForm(ProductType::class, $product);
+        $form = $this->createForm(ProductType::class, $product, ['owner' => $this->getUser()]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

@@ -1,7 +1,7 @@
 {% extends 'dashbord/base.html.twig' %}
 
-{% block title %}Gestion des Employés - ERP{% endblock %}
-{% block page_title %}Gestion des Employés{% endblock %}
+{% block title %}{{ 'nav.employees'|trans }} - ERP{% endblock %}
+{% block page_title %}{{ 'nav.employees'|trans }}{% endblock %}
 {% block icon %}person-badge{% endblock %}
 
 {% block content %}
@@ -10,10 +10,10 @@
         <div class="col-12">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
                 <p class="text-muted mb-0">
-                    <i class="bi bi-info-circle me-2"></i>Total: <strong>{{ employes|length }}</strong> employés
+                    <i class="bi bi-info-circle me-2"></i>{{ 'dashboard.employees'|trans }}: <strong>{{ employes|length }}</strong>
                 </p>
                 <a href="{{ path('dashbord_employe_new') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Ajouter un employé
+                    <i class="bi bi-plus-circle me-2"></i>{{ 'pages.add_employee'|trans }}
                 </a>
             </div>
         </div>
@@ -23,7 +23,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>Liste des employés</h5>
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>{{ 'pages.list_employees'|trans }}</h5>
                 </div>
                 <div class="card-body p-0">
                     {% if employes is not empty %}
@@ -31,11 +31,7 @@
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Nom & Prénom</th>
-                                        <th>Département</th>
-                                        <th>Email</th>
-                                        <th>Téléphone</th>
-                                        <th>Actions</th>
+                                        <th>{{ 'pages.full_name'|trans }}</th><th>{{ 'pages.department'|trans }}</th><th>{{ 'pages.email'|trans }}</th><th>{{ 'pages.phone'|trans }}</th><th>{{ 'common.actions'|trans }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -63,10 +59,10 @@
                                         <td>{{ employe.telephone ?: '-' }}</td>
                                         <td>
                                             <div style="display: flex; gap: 0.5rem;">
-                                                <a href="{{ path('dashbord_employe_edit', {id: employe.id}) }}" class="btn btn-sm" style="background: #fef3c7; color: #92400e; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" title="Modifier">
+                                                <a href="{{ path('dashbord_employe_edit', {id: employe.id}) }}" class="btn btn-sm" style="background: #fef3c7; color: #92400e; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" title="{{ 'common.edit'|trans }}">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" data-bs-toggle="modal" data-bs-target="#deleteModal{{ employe.id }}" title="Supprimer">
+                                                <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #b91c1c; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;" data-bs-toggle="modal" data-bs-target="#deleteModal{{ employe.id }}" title="{{ 'common.delete'|trans }}">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
@@ -75,18 +71,18 @@
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression</h5>
+                                                            <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>{{ 'common.confirm_delete'|trans }}</h5>
                                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                         </div>
                                                         <div class="modal-body">
                                                             <p>Êtes-vous sûr de vouloir supprimer <strong>{{ employe.nom }} {{ employe.prenom }}</strong>?</p>
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'common.cancel'|trans }}</button>
                                                             <form method="POST" action="{{ path('dashbord_employe_delete', {id: employe.id}) }}" style="display: inline;">
                                                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_employe' ~ employe.id) }}">
                                                                 <button type="submit" class="btn btn-danger">
-                                                                    <i class="bi bi-trash me-2"></i>Supprimer
+                                                                    <i class="bi bi-trash me-2"></i>{{ 'common.delete'|trans }}
                                                                 </button>
                                                             </form>
                                                         </div>
@@ -102,10 +98,10 @@
                     {% else %}
                         <div class="empty-state">
                             <i class="bi bi-inbox"></i>
-                            <h5>Aucun employé trouvé</h5>
-                            <p class="text-muted">Commencez par ajouter votre premier employé</p>
+                            <h5>{{ 'pages.no_employee'|trans }}</h5>
+                            <p class="text-muted">{{ 'pages.start_employee'|trans }}</p>
                             <a href="{{ path('dashbord_employe_new') }}" class="btn btn-primary mt-3">
-                                <i class="bi bi-plus-circle me-2"></i>Ajouter un employé
+                                <i class="bi bi-plus-circle me-2"></i>{{ 'pages.add_employee'|trans }}
                             </a>
                         </div>
                     {% endif %}

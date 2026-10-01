@@ -5,6 +5,9 @@ namespace App\Form;
 use App\Entity\Client;
 use App\Entity\CommandeVente;
 use App\Entity\Entrepot;
+use App\Entity\Users;
+use App\Repository\ClientRepository;
+use App\Repository\EntrepotRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -20,6 +23,11 @@ class CommandeVenteType extends AbstractType
             ->add('client', EntityType::class, [
                 'class' => Client::class,
                 'choice_label' => 'nomComplet',
+                'query_builder' => static function (ClientRepository $repository) use ($options) {
+                    return $repository->createQueryBuilder('c')
+                        ->andWhere('c.createdBy = :owner')
+                        ->setParameter('owner', $options['owner']);
+                },
                 'label' => 'Client',
             ])
             ->add('dateCommande', DateType::class, [
@@ -29,6 +37,11 @@ class CommandeVenteType extends AbstractType
             ->add('entrepot', EntityType::class, [
                 'class' => Entrepot::class,
                 'choice_label' => 'nom',
+                'query_builder' => static function (EntrepotRepository $repository) use ($options) {
+                    return $repository->createQueryBuilder('e')
+                        ->andWhere('e.createdBy = :owner')
+                        ->setParameter('owner', $options['owner']);
+                },
                 'label' => 'Entrepôt',
             ])
             ->add('notes', TextareaType::class, [
@@ -45,6 +58,8 @@ class CommandeVenteType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => CommandeVente::class,
+            'owner' => null,
         ]);
+        $resolver->setAllowedTypes('owner', [Users::class, 'null']);
     }
 }

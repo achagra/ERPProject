@@ -1,13 +1,24 @@
 {% extends 'dashbord/base.html.twig' %}
 
 {% block title %}Dashboard Entreprise - ERP{% endblock %}
-{% block page_title %}Tableau de Bord Entreprise{% endblock %}
+{% block page_title %}{{ 'dashboard.title'|trans }}{% endblock %}
 {% block icon %}building{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
     <div class="alert alert-info">
-        <i class="bi bi-info-circle me-2"></i>Bienvenue dans l'espace Entreprise
+        <i class="bi bi-info-circle me-2"></i>{{ 'dashboard.welcome'|trans }}
+    </div>
+
+    <div class="d-flex justify-content-end mb-3">
+        <form method="get" class="d-flex align-items-center gap-2">
+            <label for="period" class="form-label mb-0">{{ 'dashboard.period'|trans }}</label>
+            <select id="period" name="period" class="form-select" onchange="this.form.submit()">
+                <option value="30" {% if period == 30 %}selected{% endif %}>{{ 'dashboard.days_30'|trans }}</option>
+                <option value="90" {% if period == 90 %}selected{% endif %}>{{ 'dashboard.days_90'|trans }}</option>
+                <option value="365" {% if period == 365 %}selected{% endif %}>{{ 'dashboard.days_365'|trans }}</option>
+            </select>
+        </form>
     </div>
 
     <div class="row mb-4">
@@ -17,7 +28,7 @@
                     <i class="bi bi-person-badge"></i>
                 </div>
                 <div class="stat-value">{{ totalEmployes }}</div>
-                <div class="stat-label">Employés</div>
+                <div class="stat-label">{{ 'dashboard.employees'|trans }}</div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -26,7 +37,7 @@
                     <i class="bi bi-person"></i>
                 </div>
                 <div class="stat-value">{{ totalClientsParticuliers }}</div>
-                <div class="stat-label">Clients particuliers</div>
+                <div class="stat-label">{{ 'dashboard.individual_clients'|trans }}</div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -35,7 +46,7 @@
                     <i class="bi bi-building"></i>
                 </div>
                 <div class="stat-value">{{ totalClientsProfessionnels }}</div>
-                <div class="stat-label">Clients professionnels</div>
+                <div class="stat-label">{{ 'dashboard.business_clients'|trans }}</div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -44,7 +55,7 @@
                     <i class="bi bi-person"></i>
                 </div>
                 <div class="stat-value">{{ totalFournisseursParticuliers }}</div>
-                <div class="stat-label">Fournisseurs particuliers</div>
+                <div class="stat-label">{{ 'dashboard.individual_suppliers'|trans }}</div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -53,9 +64,15 @@
                     <i class="bi bi-building"></i>
                 </div>
                 <div class="stat-value">{{ totalFournisseursProfessionnels }}</div>
-                <div class="stat-label">Fournisseurs professionnels</div>
+                <div class="stat-label">{{ 'dashboard.business_suppliers'|trans }}</div>
             </div>
         </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6"><div class="stat-card"><div class="stat-label">{{ 'dashboard.period_purchases'|trans }}</div><div class="stat-value">{{ periodAchats }}</div></div></div>
+        <div class="col-md-6"><div class="stat-card"><div class="stat-label">{{ 'dashboard.period_sales'|trans }}</div><div class="stat-value">{{ periodVentes }}</div></div></div>
+        <div class="col-12"><div class="card"><div class="card-header"><h5 class="mb-0">{{ 'dashboard.monthly_activity'|trans }}</h5></div><div class="card-body"><canvas id="ordersChart" height="100"></canvas></div></div></div>
     </div>
 
     <div class="row mb-4">
@@ -70,4 +87,21 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script>
+        new Chart(document.getElementById('ordersChart'), {
+            type: 'bar',
+            data: {
+                labels: {{ chartLabels|json_encode|raw }},
+                datasets: [
+                    { label: '{{ 'dashboard.purchases'|trans }}', data: {{ chartAchats|json_encode|raw }}, backgroundColor: '#f59e0b' },
+                    { label: '{{ 'dashboard.sales'|trans }}', data: {{ chartVentes|json_encode|raw }}, backgroundColor: '#3b82f6' }
+                ]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        });
+    </script>
 {% endblock %}

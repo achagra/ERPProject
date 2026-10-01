@@ -1,0 +1,44 @@
+{% extends 'dashbord/base.html.twig' %}
+
+{% block title %}{{ 'nav.audit'|trans }}{% endblock %}
+{% block page_title %}{{ 'nav.audit'|trans }}{% endblock %}
+{% block icon %}journal-text{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header"><h5 class="mb-0">{{ 'common.filter'|trans }}</h5></div>
+        <div class="card-body">
+            <form class="row g-3" method="get">
+                <div class="col-md-3">
+                    <label class="form-label" for="action">{{ 'common.actions'|trans }}</label>
+                    <select class="form-select" id="action" name="action">
+                        <option value="">{{ 'common.all'|trans }}</option>
+                        {% for value in ['CREATE', 'UPDATE', 'DELETE'] %}
+                            <option value="{{ value }}" {% if filters.action == value %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3"><label class="form-label" for="actor">Utilisateur ID</label><input class="form-control" id="actor" name="actor" type="number" value="{{ filters.actor ?: '' }}"></div>
+                <div class="col-md-2"><label class="form-label" for="from">Du</label><input class="form-control" id="from" name="from" type="date" value="{{ filters.from ?: '' }}"></div>
+                <div class="col-md-2"><label class="form-label" for="to">Au</label><input class="form-control" id="to" name="to" type="date" value="{{ filters.to ?: '' }}"></div>
+                <div class="col-md-2 d-flex align-items-end"><button class="btn btn-primary w-100" type="submit"><i class="bi bi-funnel me-2"></i>{{ 'common.filter'|trans }}</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-4"><div class="card-body p-0"><div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>Date</th><th>Action</th><th>Entité</th><th>ID</th><th>Utilisateur</th><th>Modifications</th></tr></thead>
+            <tbody>
+            {% for log in logs %}
+                <tr>
+                    <td>{{ log.createdAt|date('d/m/Y H:i') }}</td><td><span class="badge text-bg-secondary">{{ log.action }}</span></td><td>{{ log.entityType }}</td><td>{{ log.entityId ?: '-' }}</td><td>{{ log.actor ? log.actor.email : 'Système' }}</td>
+                    <td><small>Avant: {{ log.oldValues ? log.oldValues|json_encode : '-' }}<br>Après: {{ log.newValues ? log.newValues|json_encode : '-' }}</small></td>
+                </tr>
+            {% else %}<tr><td colspan="6" class="text-center py-4">{{ 'common.no_activity'|trans }}</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div></div></div>
+</div>
+{% endblock %}
